@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KnitApp", "KnitApp\KnitApp.csproj", "{2A5B0C4E-CE9B-4D2D-9E2F-12128151D1CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KnitApp.Tests", "KnitApp.Tests\KnitApp.Tests.csproj", "{70646649-00FC-4B24-83F6-0742927B211A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2A5B0C4E-CE9B-4D2D-9E2F-12128151D1CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A5B0C4E-CE9B-4D2D-9E2F-12128151D1CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A5B0C4E-CE9B-4D2D-9E2F-12128151D1CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A5B0C4E-CE9B-4D2D-9E2F-12128151D1CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70646649-00FC-4B24-83F6-0742927B211A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70646649-00FC-4B24-83F6-0742927B211A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70646649-00FC-4B24-83F6-0742927B211A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70646649-00FC-4B24-83F6-0742927B211A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
