@@ -1,6 +1,6 @@
 namespace KnitApp.Models;
 
-public enum RecipeType
+public enum PatternType
 {
     Knit, 
     Crochet
