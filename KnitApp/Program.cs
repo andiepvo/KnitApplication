@@ -1,6 +1,7 @@
 using KnitApp.Components;
 using KnitApp.Data;
 using Microsoft.EntityFrameworkCore; 
+using KnitApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,8 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IPatternService, PatternService>();
 
 var app = builder.Build();
 
