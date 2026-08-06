@@ -1,4 +1,27 @@
 @page "/addpatterns" 
 
+@using KnitApp.Models
+@using KnitApp.Services
+
+@inject IPatternService PatternService
+@inject NavigationManager NavigationManager 
+
 <h1>Add patterns</h1>
 <p>This is where you can add patterns</p>
+
+<EditForm Model="newPattern" OnValidSubmit="HandleSubmit" FormName="AddPatternForm">
+    <InputText @bind-Value="newPattern.Name" />
+    <button type = "submit">Save</button>
+</EditForm>
+
+@code {
+    [SupplyParameterFromForm]
+    private Pattern newPattern { get; set; } = new();
+
+    protected async Task HandleSubmit()
+    {
+        await PatternService.AddAsync(newPattern);
+        NavigationManager.NavigateTo("/patterns");
+        //to navigate user to another page in the code
+    }
+}

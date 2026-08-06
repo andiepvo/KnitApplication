@@ -1,0 +1,46 @@
+@page "/editpatterns/{id:int}"
+
+@using KnitApp.Models
+@using KnitApp.Services
+
+@inject IPatternService PatternService
+@inject NavigationManager NavigationManager
+
+<EditForm 
+    Model = "editingPattern" 
+    OnValidSubmit="HandleSubmit" 
+    FormName="EditPatternForm">
+<InputText @bind-Value="editingPattern.Name"/>
+<button type ="submit">Save changes</button>
+</EditForm>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm] private Pattern editingPattern { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrEmpty(editingPattern.Name))
+        {
+            var existing = await PatternService.GetByIdAsync(Id);
+            if (existing != null)
+            {
+                editingPattern.Name = existing.Name;
+            } 
+        }
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var pattern = await PatternService.GetByIdAsync(Id);
+        if (pattern != null)
+        {
+            pattern.Name = editingPattern.Name;
+            await PatternService.UpdateAsync(pattern);
+            NavigationManager.NavigateTo("/patterns");
+        }
+    }
+}
