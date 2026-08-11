@@ -13,6 +13,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IPatternService, PatternService>();
+builder.Services.AddScoped<IShoppingListService, ShoppingListServices>();
 
 var app = builder.Build();
 
