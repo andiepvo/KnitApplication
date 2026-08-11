@@ -18,7 +18,9 @@ public class PatternService: IPatternService
 
     public async Task<List<Pattern>> GetAllAsync() 
     { 
-        return await _context.Patterns.ToListAsync(); 
+        return await _context.Patterns
+            .Include(p => p.Materials)
+            .ToListAsync();
     }
 
     public async Task<Pattern?> GetByIdAsync(int id)
