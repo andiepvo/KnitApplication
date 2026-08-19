@@ -1,4 +1,5 @@
 @page "/addpatterns" 
+@rendermode InteractiveServer
 
 @using KnitApp.Models
 @using KnitApp.Services
@@ -10,18 +11,94 @@
 <p>This is where you can add patterns</p>
 
 <EditForm Model="newPattern" OnValidSubmit="HandleSubmit" FormName="AddPatternForm">
-    <InputText @bind-Value="newPattern.Name" />
-    <button type = "submit">Save</button>
+    <label>
+        Pattern name
+        <InputText @bind-Value="newPattern.Name" />
+    </label>
+
+    <div>
+        @foreach (var material in newPattern.Materials)
+        {
+            <div @key="material">
+                <label>
+                    Yarn name
+                    <InputText @bind-Value="material.MaterialName" />
+                </label>
+
+                <label>
+                    Quantity
+                    <button type="button" @onclick="() => DecreaseQuantity(material)">−</button>
+                    <InputNumber @bind-Value="material.Quantity" />
+                    <button type="button" @onclick="() => IncreaseQuantity(material)">+</button>
+                </label>
+
+                <label>
+                    Unit
+                    <InputSelect @bind-Value="material.Unit">
+                        <option value="">Select unit</option>
+                        <option value="Skeins">Skeins</option>
+                        <option value="Grams">Grams</option>
+                        <option value="Meters">Meters</option>
+                        <option value="Yards">Yards</option>
+                        <option value="Balls">Balls</option>
+                    </InputSelect>
+                </label>
+
+                <label>
+                    Color (optional)
+                    <InputText @bind-Value="material.ColorOfYarn" />
+                </label>
+
+                <button type="button" @onclick="() => RemoveMaterial(material)">Remove</button>
+            </div>
+        }
+    </div>
+
+    <button type="button" @onclick="() => AddMaterial()">Add yarn</button>
+    <button type="submit">Save</button>
 </EditForm>
 
 @code {
     [SupplyParameterFromForm]
-    private Pattern newPattern { get; set; } = new();
+    private Pattern newPattern { get; set; } = new()
+    {
+        Materials = new() { new Material() }
+    };
 
     protected async Task HandleSubmit()
     {
+        // Ignorer tomme rader brukeren ikke fylte ut
+        newPattern.Materials = newPattern.Materials
+            .Where(m => !string.IsNullOrWhiteSpace(m.MaterialName))
+            .ToList();
+
         await PatternService.AddAsync(newPattern);
         NavigationManager.NavigateTo("/patterns");
         //to navigate user to another page in the code
+    }
+
+    private void RemoveMaterial(Material material)
+    {
+        newPattern.Materials.Remove(material);
+        if (newPattern.Materials.Count == 0)
+        {
+            newPattern.Materials.Add(new Material());
+        }
+    }
+
+    private void AddMaterial()
+    {
+        newPattern.Materials.Add(new Material());
+    }
+
+    private void IncreaseQuantity(Material material)
+    {
+        material.Quantity += 1;
+    }
+
+    private void DecreaseQuantity(Material material)
+    {
+        if (material.Quantity > 0)
+            material.Quantity -= 1;
     }
 }
