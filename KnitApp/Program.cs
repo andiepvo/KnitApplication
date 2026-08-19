@@ -12,6 +12,8 @@ builder.Services.AddRazorComponents()
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<IYarnCatalogService, YarnCatalogService>();
+
 builder.Services.AddScoped<IPatternService, PatternService>();
 builder.Services.AddScoped<IShoppingListService, ShoppingListServices>();
 

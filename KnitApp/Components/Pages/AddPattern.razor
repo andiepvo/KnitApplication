@@ -3,9 +3,11 @@
 
 @using KnitApp.Models
 @using KnitApp.Services
+@using KnitApp.Components.Shared
 
 @inject IPatternService PatternService
 @inject NavigationManager NavigationManager 
+@inject IYarnCatalogService YarnCatalogService
 
 <h1>Add patterns</h1>
 <p>This is where you can add patterns</p>
@@ -22,7 +24,7 @@
             <div @key="material">
                 <label>
                     Yarn name
-                    <InputText @bind-Value="material.MaterialName" />
+                    <YarnNameAutocomplete @bind-Value="material.MaterialName" Suggestions="yarnCatalog" />
                 </label>
 
                 <label>
@@ -76,6 +78,11 @@
         NavigationManager.NavigateTo("/patterns");
         //to navigate user to another page in the code
     }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        yarnCatalog = await YarnCatalogService.GetAllAsync();
+    }
 
     private void RemoveMaterial(Material material)
     {
@@ -101,4 +108,8 @@
         if (material.Quantity > 0)
             material.Quantity -= 1;
     }
+    
+    private List<YarnCatalog> yarnCatalog = new();
+    
+    
 }

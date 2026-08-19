@@ -10,5 +10,7 @@ public class AppDbContext : DbContext
     public DbSet<Pattern> Patterns => Set<Pattern>();
     public DbSet<Material> Materials => Set<Material>();
     public DbSet<Section> Sections => Set<Section>();
+    
+    public DbSet<YarnCatalog> YarnCatalogs {get; set;}
 
 }

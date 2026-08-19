@@ -1,0 +1,56 @@
+@using KnitApp.Models
+
+<div>
+    <input value="@Value" @oninput="OnInput" />
+
+    @if (showSuggestions && FilteredSuggestions.Any())
+    {
+        <div>
+            @foreach (var suggestion in FilteredSuggestions)
+            {
+                <div @key="suggestion.Id" @onclick="() => SelectSuggestion(suggestion)">
+                    @suggestion.Name (@suggestion.Brand)
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] 
+    public string Value { get; set; } = string.Empty;
+    
+    [Parameter]    
+    public EventCallback<string> ValueChanged { get; set; }
+    
+    //the actual list with different yarntypes
+    [Parameter] 
+    public List<YarnCatalog> Suggestions { get; set; } = new();
+    
+    //filtering data
+    private List<YarnCatalog> FilteredSuggestions =>
+        string.IsNullOrWhiteSpace(Value)
+            ? new List<YarnCatalog>()
+            : Suggestions.Where(y => y.Name.Contains(Value, StringComparison.OrdinalIgnoreCase)).ToList();
+
+    private bool showSuggestions = false; //the dropdownmenu close when a value is selected
+    
+    //handle users input 
+    private async Task OnInput(ChangeEventArgs e)
+    {
+        Value = e.Value?.ToString() ?? string.Empty;
+        await ValueChanged.InvokeAsync(Value);
+        showSuggestions = true;
+    }
+    
+    //handle the object that is clicked on
+    private async Task SelectSuggestion(YarnCatalog suggestion)
+    {   
+        Value = suggestion.Name;
+        await ValueChanged.InvokeAsync(Value);
+        showSuggestions = false;
+    }
+    
+    
+    
+}
