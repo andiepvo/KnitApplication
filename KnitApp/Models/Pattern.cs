@@ -6,6 +6,7 @@ public class Pattern
     public int Id { get; set; } //the primary key for each recipe
     public string Name { get; set; } = string.Empty; //name of the recipe
     public PatternType PatternType { get; set; } //Which pattern type
+    public CraftType CraftType { get; set; }
     public string? Description { get; set; } 
     public string? Instructions { get; set; } 
     public int WorkingRow { get; set; } //unsure if it is needed or can be removed

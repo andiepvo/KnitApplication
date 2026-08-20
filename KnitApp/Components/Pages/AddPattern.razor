@@ -55,6 +55,34 @@
             </div>
         }
     </div>
+    <label>Craft type</label>
+    <InputRadioGroup @bind-Value="newPattern.CraftType">
+        @foreach (var type in Enum.GetValues<CraftType>())
+        {
+            <label>
+                <InputRadio Value="type" />
+                @type
+            </label>
+        }
+    </InputRadioGroup>
+                
+    <label>Pattern type</label>
+    <InputSelect @bind-Value="newPattern.PatternType">
+        @foreach (var type in Enum.GetValues<PatternType>())
+        {
+            <option value="@type">@type</option>
+        }
+    </InputSelect>
+                
+    <label>
+        Description
+        <InputText @bind-Value="newPattern.Description" />
+    </label>
+                
+    <label>
+        Instructions
+        <InputTextArea @bind-Value="newPattern.Instructions" rows="10" cols="50" style="resize: both;"/>
+    </label>
 
     <button type="button" @onclick="() => AddMaterial()">Add yarn</button>
     <button type="submit">Save</button>

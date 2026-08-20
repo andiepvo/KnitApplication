@@ -5,6 +5,7 @@
 @using KnitApp.Models
 
 @inject IPatternService PatternService
+@inject NavigationManager NavigationManager
 
 <h1>Patterns</h1>
 <p>This is where your saved patterns will be listed</p>
@@ -13,8 +14,10 @@
     {
         <li>
             @pattern.Name
+            <button @onclick="() => GoToEdit(pattern.Id)">Edit</button>
             <button @onclick="() => HandleDelete(pattern.Id)">Delete</button>
         </li>
+        
     }
 </ul>
 
@@ -32,6 +35,10 @@
         await PatternService.DeleteAsync(id);
         patterns = await PatternService.GetAllAsync();
         
+    }
+    private void GoToEdit(int id)
+    {
+        NavigationManager.NavigateTo($"/editpatterns/{id}");
     }
     
 }
