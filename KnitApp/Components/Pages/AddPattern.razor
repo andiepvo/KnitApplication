@@ -21,7 +21,7 @@
     <div>
         @foreach (var material in newPattern.Materials)
         {
-            <div @key="material">
+            <div @key="material" class="material-row">
                 <label>
                     Yarn name
                     <YarnNameAutocomplete @bind-Value="material.MaterialName" Suggestions="yarnCatalog" />
@@ -51,20 +51,24 @@
                     <InputText @bind-Value="material.ColorOfYarn" />
                 </label>
 
-                <button type="button" @onclick="() => RemoveMaterial(material)">Remove</button>
+                @if (newPattern.Materials.Count > 1)
+                {
+                    <button type="button" @onclick="() => RemoveMaterial(material)">Remove</button>
+                }
+                
             </div>
         }
     </div>
+    
+    <button type="button" @onclick="() => AddMaterial()">Add yarn</button>
+    
     <label>Craft type</label>
-    <InputRadioGroup @bind-Value="newPattern.CraftType">
+    <InputSelect @bind-Value="newPattern.CraftType">
         @foreach (var type in Enum.GetValues<CraftType>())
         {
-            <label>
-                <InputRadio Value="type" />
-                @type
-            </label>
+            <option value="@type">@type</option>
         }
-    </InputRadioGroup>
+    </InputSelect>
                 
     <label>Pattern type</label>
     <InputSelect @bind-Value="newPattern.PatternType">
@@ -76,16 +80,17 @@
                 
     <label>
         Description
-        <InputText @bind-Value="newPattern.Description" />
-    </label>
-                
-    <label>
-        Instructions
-        <InputTextArea @bind-Value="newPattern.Instructions" rows="10" cols="50" style="resize: both;"/>
+        <InputTextArea @bind-Value="newPattern.Description" rows="3" style="width: 100%;" />
     </label>
 
-    <button type="button" @onclick="() => AddMaterial()">Add yarn</button>
-    <button type="submit">Save</button>
+    <label>
+        Instructions
+        <InputTextArea @bind-Value="newPattern.Instructions" rows="10" style="width: 100%; resize: both;" />
+    </label>
+
+    <div class="form-actions">
+        <button type="submit">Save</button>
+    </div>
 </EditForm>
 
 @code {
