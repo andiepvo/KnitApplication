@@ -25,7 +25,9 @@ public class PatternService: IPatternService
 
     public async Task<Pattern?> GetByIdAsync(int id)
     {
-        return await _context.Patterns.FindAsync(id); 
+        return await _context.Patterns
+            .Include(p => p.Materials)
+            .FirstOrDefaultAsync(p => p.Id == id);
 
     }
 
