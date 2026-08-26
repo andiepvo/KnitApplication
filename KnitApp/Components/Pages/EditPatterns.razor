@@ -8,6 +8,7 @@
 @inject IPatternService PatternService
 @inject NavigationManager NavigationManager
 @inject IYarnCatalogService YarnCatalogService
+@inject IPatternImageService PatternImageService
 
 <EditForm 
     Model="editingPattern" 
@@ -17,6 +18,21 @@
         Pattern name
         <InputText @bind-Value="editingPattern.Name"/>
     </label>
+    
+    <label>
+        Photos
+        <InputFile OnChange="HandleImageUpload" multiple accept="image/*" capture="environment" />
+    </label>
+
+    <div class="photo-thumbnails">
+        @foreach (var image in patternImages)
+        {
+            <div class="photo-item">
+                <img src="@image.FilePath" alt="Pattern photo" class="thumbnail" />
+                <button type="button" @onclick="() => RemoveImage(image)">Remove</button>
+            </div>
+        }
+    </div>
 
     <div>
         @foreach (var material in editingPattern.Materials)
@@ -105,6 +121,7 @@
     protected override async Task OnInitializedAsync()
     {
         yarnCatalog = await YarnCatalogService.GetAllAsync();
+        patternImages = await PatternImageService.GetImagesForPatternAsync(Id);
 
         if (string.IsNullOrEmpty(editingPattern.Name))
         {
@@ -172,6 +189,23 @@
     private void ChangeQuantity(Material material, int quantity)
     {
         material.Quantity = Math.Max(0, material.Quantity + quantity);
+    }
+    
+    private List<PatternImage> patternImages = new();
+
+    private async Task HandleImageUpload(InputFileChangeEventArgs e)
+    {
+        foreach (var file in e.GetMultipleFiles())
+        {
+            var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            var savedImage = await PatternImageService.SaveImageAsync(Id, stream, file.Name);
+            patternImages.Add(savedImage);
+        }
+    }
+    private async Task RemoveImage(PatternImage image)
+    {
+        await PatternImageService.DeleteImageAsync(image.Id);
+        patternImages.Remove(image);
     }
 }
 

@@ -15,6 +15,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IYarnCatalogService, YarnCatalogService>();
 
 builder.Services.AddScoped<IPatternService, PatternService>();
+builder.Services.AddScoped<IPatternImageService, PatternImageService>();
 builder.Services.AddScoped<IShoppingListService, ShoppingListServices>();
 
 var app = builder.Build();
