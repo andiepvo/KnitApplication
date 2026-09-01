@@ -99,9 +99,11 @@
     <div class="form-actions">
         <button type="submit" disabled="@isUploadingPdf">Save</button>
     </div>
+    
 </EditForm>
 
 @code {
+    
     [SupplyParameterFromForm]
     private Pattern newPattern { get; set; } = new()
     {
