@@ -8,6 +8,7 @@
 @inject IPatternService PatternService
 @inject NavigationManager NavigationManager 
 @inject IYarnCatalogService YarnCatalogService
+@inject IWebHostEnvironment Environment
 
 <h1>Add patterns</h1>
 <p>This is where you can add patterns</p>
@@ -87,9 +88,16 @@
         Instructions
         <InputTextArea @bind-Value="newPattern.Instructions" rows="10" style="width: 100%; resize: both;" />
     </label>
+    
+    <label>
+        Instructions PDF (optional)
+        <InputFile OnChange="HandlePdfUpload" accept=".pdf,application/pdf" />
+    </label>
+    
+    <InputText @bind-Value="newPattern.InstructionsPdf" type="hidden" />
 
     <div class="form-actions">
-        <button type="submit">Save</button>
+        <button type="submit" disabled="@isUploadingPdf">Save</button>
     </div>
 </EditForm>
 
@@ -102,6 +110,8 @@
 
     protected async Task HandleSubmit()
     {
+        Console.WriteLine($"[DEBUG] Ved Save-trykk: InstructionsPdf = {newPattern.InstructionsPdf}");
+        
         // Ignorer tomme rader brukeren ikke fylte ut
         newPattern.Materials = newPattern.Materials
             .Where(m => !string.IsNullOrWhiteSpace(m.MaterialName))
@@ -144,5 +154,22 @@
     
     private List<YarnCatalog> yarnCatalog = new();
     
+    private bool isUploadingPdf = false;
     
+    private async Task HandlePdfUpload(InputFileChangeEventArgs e)
+    {
+        isUploadingPdf = true;
+
+        var file = e.File;
+        var uploadsFolder = Path.Combine(Environment.WebRootPath, "uploads", "pattern-pdfs");
+        Directory.CreateDirectory(uploadsFolder);
+        var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.Name)}";
+        var fullPath = Path.Combine(uploadsFolder, uniqueFileName);
+        await using var stream = file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
+        await using var outputStream = new FileStream(fullPath, FileMode.Create);
+        await stream.CopyToAsync(outputStream);
+        newPattern.InstructionsPdf = $"/uploads/pattern-pdfs/{uniqueFileName}";
+
+        isUploadingPdf = false;
+    }
 }

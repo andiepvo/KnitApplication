@@ -9,6 +9,7 @@
 @inject NavigationManager NavigationManager
 @inject IYarnCatalogService YarnCatalogService
 @inject IPatternImageService PatternImageService
+@inject IWebHostEnvironment Environment
 
 <EditForm 
     Model="editingPattern" 
@@ -103,15 +104,27 @@
         Instructions
         <InputTextArea @bind-Value="editingPattern.Instructions" rows="10" style="width: 100%; resize: both;" />
     </label>
+    <label>
+        Instructions PDF (optional)
+        <InputFile OnChange="HandlePdfUpload" accept=".pdf,application/pdf" />
+    </label>
+    <InputText @bind-Value="editingPattern.InstructionsPdf" type="hidden" />
+
+    @if (!string.IsNullOrEmpty(editingPattern.InstructionsPdf))
+    {
+        <a href="@editingPattern.InstructionsPdf" target="_blank">View current PDF</a>
+    }
 
     <div class="form-actions">
-        <button type="submit">Save changes</button>
+        <button type="submit" disabled="@isUploadingPdf">Save changes</button>
     </div>
     
 </EditForm>
 
 @code
 {
+    private bool isUploadingPdf = false;
+    
     [Parameter] public int Id { get; set; }
 
     [SupplyParameterFromForm] private Pattern editingPattern { get; set; } = new();
@@ -133,9 +146,11 @@
                 editingPattern.PatternType = existing.PatternType;
                 editingPattern.Description = existing.Description;
                 editingPattern.Instructions = existing.Instructions;
+                editingPattern.InstructionsPdf = existing.InstructionsPdf;
                 editingPattern.Materials = existing.Materials
+                
                     .Select(m => new Material
-                    {
+                    { 
                         MaterialName = m.MaterialName,
                         Quantity = m.Quantity,
                         Unit = m.Unit,
@@ -153,6 +168,8 @@
 
     protected async Task HandleSubmit()
     {
+        Console.WriteLine($"[DEBUG] Ved Save-trykk: InstructionsPdf = {editingPattern.InstructionsPdf}");
+        
         var pattern = await PatternService.GetByIdAsync(Id);
         if (pattern != null)
         {
@@ -161,6 +178,7 @@
             pattern.PatternType = editingPattern.PatternType;
             pattern.Description = editingPattern.Description;
             pattern.Instructions = editingPattern.Instructions;
+            pattern.InstructionsPdf = editingPattern.InstructionsPdf;
 
             // Ignorer tomme rader brukeren ikke fylte ut
             pattern.Materials = editingPattern.Materials
@@ -206,6 +224,23 @@
     {
         await PatternImageService.DeleteImageAsync(image.Id);
         patternImages.Remove(image);
+    }
+    
+    private async Task HandlePdfUpload(InputFileChangeEventArgs e)
+    {
+        isUploadingPdf = true;
+
+        var file = e.File;
+        var uploadsFolder = Path.Combine(Environment.WebRootPath, "uploads", "pattern-pdfs");
+        Directory.CreateDirectory(uploadsFolder);
+        var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.Name)}";
+        var fullPath = Path.Combine(uploadsFolder, uniqueFileName);
+        await using var stream = file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
+        await using var outputStream = new FileStream(fullPath, FileMode.Create);
+        await stream.CopyToAsync(outputStream);
+        editingPattern.InstructionsPdf = $"/uploads/pattern-pdfs/{uniqueFileName}";
+
+        isUploadingPdf = false;
     }
 }
 
