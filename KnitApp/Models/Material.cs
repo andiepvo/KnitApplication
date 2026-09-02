@@ -7,7 +7,7 @@ public class Material
     public Pattern? Pattern { get; set; }
 
     public string MaterialName { get; set; } = string.Empty; //important,always have a value
-    public double Quantity { get; set; } //double because it can be "2,5 yarn of ..."
+    public int Quantity { get; set; } 
     public string Unit { get; set; } = string.Empty; //how many skeins
     public string? ColorOfYarn { get; set; }
     

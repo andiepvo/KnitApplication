@@ -2,6 +2,7 @@ using KnitApp.Components;
 using KnitApp.Data;
 using Microsoft.EntityFrameworkCore; 
 using KnitApp.Services;
+using KnitApp.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,11 +31,29 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseStaticFiles();
 
 app.UseAntiforgery();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+var patternsApi = app.MapGroup("/api/patterns");
+patternsApi.MapGet("/", async (IPatternService service) =>
+{
+    var patterns = await service.GetAllAsync();
+    return patterns.Select(p => new PatternDto(
+        p.Id,
+        p.Name,
+        p.PatternType,
+        p.CraftType,
+        p.Description,
+        p.Instructions,
+        p.CreatedOn,
+        p.Materials.Select(m => new MaterialDto(m.Id, m.MaterialName, m.Quantity, m.Unit, m.ColorOfYarn)).ToList(),
+        p.InstructionsPdf
+    ));
+});
 
 app.Run();
