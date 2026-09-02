@@ -75,6 +75,28 @@
                 }
             </div>
         }
+        @foreach (var equipment in editingPattern.Equipment)
+        {
+            <div @key="equipment" class="equipment-row">
+                <label>
+                    Equipment
+                    <YarnNameAutocomplete @bind-Value="equipment.EquipmentType" />
+                </label>
+                <label>
+                    Size (mm)
+                    <InputNumber @bind-Value="equipment.Size" />
+                </label>
+                <label>
+                    Length (cm)
+                    <InputNumber @bind-Value="equipment.Length"/>
+                </label>
+                @if (editingPattern.Equipment.Count > 1)
+                {
+                    <button type="button" @onclick="() => RemoveEquipment(equipment)">Remove</button>
+                }
+            </div>
+        }
+        <button type="button" @onclick="() => AddEquipment()">Add equipment</button>
     </div>
 
     <button type="button" @onclick="() => AddMaterial()">Add yarn</button>
@@ -141,6 +163,7 @@
             var existing = await PatternService.GetByIdAsync(Id);
             if (existing != null)
             {
+                //materials
                 editingPattern.Name = existing.Name;
                 editingPattern.CraftType = existing.CraftType;
                 editingPattern.PatternType = existing.PatternType;
@@ -162,13 +185,26 @@
                 {
                     editingPattern.Materials.Add(new Material());
                 }
+                //equipment
+                editingPattern.Equipment = existing.Equipment
+                    .Select(e => new Equipment
+                    {
+                        EquipmentType = e.EquipmentType,
+                        Size = e.Size,
+                        Length = e.Length
+                    })
+                    .ToList();
+
+                if (editingPattern.Equipment.Count == 0)
+                {
+                    editingPattern.Equipment.Add(new Equipment());
+                }
             }
         }
     }
 
     protected async Task HandleSubmit()
     {
-        Console.WriteLine($"[DEBUG] Ved Save-trykk: InstructionsPdf = {editingPattern.InstructionsPdf}");
         
         var pattern = await PatternService.GetByIdAsync(Id);
         if (pattern != null)
@@ -180,9 +216,14 @@
             pattern.Instructions = editingPattern.Instructions;
             pattern.InstructionsPdf = editingPattern.InstructionsPdf;
 
-            // Ignorer tomme rader brukeren ikke fylte ut
+            // Ignore empty rows in material section
             pattern.Materials = editingPattern.Materials
                 .Where(m => !string.IsNullOrWhiteSpace(m.MaterialName))
+                .ToList();
+            
+            // Ignore empty rows in equipment section
+            pattern.Equipment = editingPattern.Equipment
+                .Where(e => !string.IsNullOrWhiteSpace(e.EquipmentType))
                 .ToList();
 
             await PatternService.UpdateAsync(pattern);
@@ -211,6 +252,16 @@
     
     private List<PatternImage> patternImages = new();
 
+    private void RemoveEquipment(Equipment equipment)
+    {
+        editingPattern.Equipment.Remove(equipment);
+    }
+
+    private void AddEquipment()
+    {
+        editingPattern.Equipment.Add(new Equipment());
+    }
+    
     private async Task HandleImageUpload(InputFileChangeEventArgs e)
     {
         foreach (var file in e.GetMultipleFiles())

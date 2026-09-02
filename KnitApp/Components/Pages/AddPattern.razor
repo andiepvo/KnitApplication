@@ -59,7 +59,31 @@
                 
             </div>
         }
-    </div>
+        @foreach (var equipment in newPattern.Equipment)
+        {
+            <div @key="equipment" class="equipment-row">
+                <label>
+                    Equipment
+                    <InputText @bind-Value="equipment.EquipmentType" />
+                </label>
+                
+                <label>
+                    Size (mm)
+                    <InputNumber @bind-Value="equipment.Size" />
+                </label>
+                <label>
+                    Length (cm)
+                    <InputNumber @bind-Value="equipment.Length"/>
+                </label>
+                @if (newPattern.Equipment.Count > 1)
+                {
+                    <button type="button" @onclick="() => RemoveEquipment(equipment)">Remove</button>
+                }
+            
+            </div>
+                }
+        <button type="button" @onclick="() => AddEquipment()">Add equipment</button>
+        </div>
     
     <button type="button" @onclick="() => AddMaterial()">Add yarn</button>
     
@@ -107,7 +131,8 @@
     [SupplyParameterFromForm]
     private Pattern newPattern { get; set; } = new()
     {
-        Materials = new() { new Material() }
+        Materials = new() { new Material() },
+        Equipment = new() { new Equipment() }
     };
 
     protected async Task HandleSubmit()
@@ -127,6 +152,16 @@
     protected override async Task OnInitializedAsync()
     {
         yarnCatalog = await YarnCatalogService.GetAllAsync();
+    }
+    
+    private void RemoveEquipment(Equipment equipment)
+    {
+        newPattern.Equipment.Remove(equipment);
+    }
+
+    private void AddEquipment()
+    {
+        newPattern.Equipment.Add(new Equipment());
     }
 
     private void RemoveMaterial(Material material)
@@ -156,7 +191,7 @@
     
     private List<YarnCatalog> yarnCatalog = new();
     
-    private bool isUploadingPdf = false;
+    private bool isUploadingPdf;
     
     private async Task HandlePdfUpload(InputFileChangeEventArgs e)
     {

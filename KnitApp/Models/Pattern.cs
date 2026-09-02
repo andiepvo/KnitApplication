@@ -13,6 +13,7 @@ public class Pattern
     public int? TotalRows { get; set; }
     public DateTime CreatedOn { get; set; } //when the user started on the project
     public List<Material> Materials { get; set; } = new(); //list of needed materials for the pattern 
+    public List<Equipment> Equipment { get; set; } = new(); //list of needed equipments in the pattern
     public List<Section> Sections { get; set; } = new(); //list of sections in the recipe, for example arm, yoke etc.
     public string? InstructionsPdf { get; set; } //user can add a pdf file
     

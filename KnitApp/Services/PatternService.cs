@@ -20,6 +20,7 @@ public class PatternService: IPatternService
     { 
         return await _context.Patterns
             .Include(p => p.Materials)
+            .Include(p => p.Equipment)
             .ToListAsync();
     }
 
@@ -27,6 +28,7 @@ public class PatternService: IPatternService
     {
         return await _context.Patterns
             .Include(p => p.Materials)
+            .Include(p => p.Equipment)
             .FirstOrDefaultAsync(p => p.Id == id);
 
     }
