@@ -1,10 +1,5 @@
-@page "/shopping-list" 
-@rendermode InteractiveServer 
-@using KnitApp.Services
-@using KnitApp.Models
-
-@inject IPatternService PatternService
-@inject IShoppingListService ShoppingListService
+@page "/shopping-list"
+@rendermode InteractiveServer
 
 <h1>Shopping list</h1>
 <p>This is where you can see the shopping list accordingly to chosen pattern</p>
@@ -13,7 +8,7 @@
     {
         <li>
             <input type="checkbox"
-                   checked = "@selectedPatternIds.Contains(pattern.Id)"
+                   checked="@selectedPatternIds.Contains(pattern.Id)"
                    @onchange="@((ChangeEventArgs e) => ToggleSelection(pattern.Id, (bool)e.Value!))" />
             @pattern.Name
         </li>
@@ -31,32 +26,4 @@
             <li>@item.YarnName - @item.TotalQuantity @item.Unit</li>
         }
     </ul>
-}
-
-@code
-{
-    private List<Pattern> patterns = new();
-    //Which pattern is chosen
-    private HashSet<int> selectedPatternIds = new HashSet<int>();
-    private List<ShoppingListItemDto> shoppingList = new();
-    
-    protected override async Task OnInitializedAsync() =>
-        patterns = await PatternService.GetAllAsync();
-
-    private void ToggleSelection(int id, bool isChecked)
-    {
-        if (isChecked)
-            selectedPatternIds.Add(id);
-        else
-            selectedPatternIds.Remove(id);
-    }
-
-    private void GenerateList()
-    {
-        var selectedPatterns = patterns
-            .Where(p => selectedPatternIds.Contains(p.Id))
-            .ToList();
-
-        shoppingList = ShoppingListService.GenerateShoppingList(selectedPatterns);
-    }
 }
