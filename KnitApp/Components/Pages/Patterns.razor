@@ -8,6 +8,7 @@
     {
         <li>
             @pattern.Name
+            <span>(Opprettet: @pattern.CreatedOn.ToLocalTime().ToString("dd.MM.yyyy"))</span>
             <button @onclick="() => GoToEdit(pattern.Id)">Edit</button>
             <button @onclick="() => HandleDelete(pattern.Id)">Delete</button>
         </li>

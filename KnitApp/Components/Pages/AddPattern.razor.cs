@@ -46,6 +46,9 @@ public partial class AddPattern
         newPattern.Materials = newPattern.Materials
             .Where(m => !string.IsNullOrWhiteSpace(m.MaterialName))
             .ToList();
+        
+        //show actually date and time when the pattern is created
+        newPattern.CreatedOn = DateTime.UtcNow;
 
         await PatternService.AddAsync(newPattern);
         Navigation.NavigateTo("/patterns");
