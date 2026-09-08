@@ -14,3 +14,5 @@ public record PatternDto(
     List<MaterialDto> Materials,
     string? InstructionsPdf
 );
+
+public record PdfUploadResultDto(string FilePath);

@@ -19,6 +19,9 @@ builder.Services.AddScoped<IPatternService, PatternService>();
 builder.Services.AddScoped<IPatternImageService, PatternImageService>();
 builder.Services.AddScoped<IShoppingListService, ShoppingListServices>();
 
+builder.Services.AddScoped<IPatternPdfService, PatternPdfService>();
+builder.Services.AddHttpClient();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -55,5 +58,13 @@ patternsApi.MapGet("/", async (IPatternService service) =>
         p.InstructionsPdf
     ));
 });
+
+patternsApi.MapPost("/pdf", async (IFormFile file, IPatternPdfService service) =>
+    {
+        await using var stream = file.OpenReadStream();
+        var filePath = await service.SavePdfAsync(stream, file.FileName);
+        return Results.Ok(new PdfUploadResultDto(filePath));
+    })
+    .DisableAntiforgery();
 
 app.Run();

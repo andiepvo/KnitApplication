@@ -4,7 +4,10 @@
 @using KnitApp.Models
 @using KnitApp.Services
 @using KnitApp.Components.Shared
+@using System.Net.Http.Json
 
+@inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager Navigation
 @inject IPatternService PatternService
 @inject NavigationManager NavigationManager 
 @inject IYarnCatalogService YarnCatalogService
@@ -198,14 +201,19 @@
         isUploadingPdf = true;
 
         var file = e.File;
-        var uploadsFolder = Path.Combine(Environment.WebRootPath, "uploads", "pattern-pdfs");
-        Directory.CreateDirectory(uploadsFolder);
-        var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.Name)}";
-        var fullPath = Path.Combine(uploadsFolder, uniqueFileName);
-        await using var stream = file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
-        await using var outputStream = new FileStream(fullPath, FileMode.Create);
-        await stream.CopyToAsync(outputStream);
-        newPattern.InstructionsPdf = $"/uploads/pattern-pdfs/{uniqueFileName}";
+        var stream = file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
+
+        using var content = new MultipartFormDataContent();
+        content.Add(new StreamContent(stream), "file", file.Name);
+
+        var client = HttpClientFactory.CreateClient();
+        client.BaseAddress = new Uri(Navigation.BaseUri);
+
+        var response = await client.PostAsync("api/patterns/pdf", content);
+        response.EnsureSuccessStatusCode();
+
+        var result = await response.Content.ReadFromJsonAsync<PdfUploadResultDto>();
+        newPattern.InstructionsPdf = result!.FilePath;
 
         isUploadingPdf = false;
     }
