@@ -73,15 +73,25 @@ public class PatternServiceTests : IDisposable
     }
     
     [Fact]
-    public async Task GetByIdAsync_ReturnsPatternWithMaterials()
+    public async Task GetByIdAsync_NonExistentId_ReturnsNull()
+    {
+        // Act
+        var result = await _service.GetByIdAsync(999);
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_ReturnsPatternWithEquipment()
     {
         // Arrange
         var pattern = new Pattern
         {
             Name = "Test Sweater",
-            Materials = new List<Material>
+            Equipment = new List<Equipment>
             {
-                new Material { MaterialName = "Merino Wool", Quantity = 3, Unit = "Skeins" }
+                new Equipment { EquipmentType = "Needle", Size = 4.0, Length = 40 }
             }
         };
         _context.Patterns.Add(pattern);
@@ -94,9 +104,10 @@ public class PatternServiceTests : IDisposable
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal("Test Sweater", result.Name);
-        Assert.Single(result.Materials);
+        Assert.Single(result.Equipment);
+        Assert.Equal("Needle", result.Equipment[0].EquipmentType);
     }
+    
     [Fact]
     public async Task UpdateAsync_ReplacesMaterialsCorrectly()
     {
@@ -153,6 +164,6 @@ public class PatternServiceTests : IDisposable
     public async Task DeleteAsync_NonExistentId_DoesNotThrow()
     {
         // Act & Assert - skal ikke kaste exception
-        await _service.DeleteAsync(999);
+        await _service.DeleteAsync(123);
     }
 }
