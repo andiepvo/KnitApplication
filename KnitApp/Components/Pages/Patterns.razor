@@ -3,14 +3,18 @@
 
 <h1>Patterns</h1>
 <p>This is where your saved patterns will be listed</p>
-<ul>
-    @foreach (var pattern in patterns)
-    {
-        <li>
-            @pattern.Name
-            <span>(Opprettet: @pattern.CreatedOn.ToLocalTime().ToString("dd.MM.yyyy"))</span>
-            <button @onclick="() => GoToEdit(pattern.Id)">Edit</button>
-            <button @onclick="() => HandleDelete(pattern.Id)">Delete</button>
-        </li>
+
+<div class="pattern-cards">
+     @foreach (var pattern in patterns)
+     {
+         <div class="pattern-cards">
+             <h3>@pattern.Name</h3>
+             <span>(Created: @pattern.CreatedOn.ToLocalTime().ToString("dd.MM.yyyy"))</span>
+             <div class="pattern-card-actions">
+                 <button @onclick="() => GoToEdit(pattern.Id)">Edit</button>
+                 <button @onclick="() => HandleDelete(pattern.Id)">Delete</button>
+                 <button @onclick="() => HandleAddToCart(pattern.Id)">Add to cart</button>
+             </div>
+         </div>
     }
-</ul>
+</div>
