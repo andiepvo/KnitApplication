@@ -9,6 +9,9 @@ public partial class Patterns
     // Injected dependencies
     [Inject]
     private IPatternService PatternService { get; set; } = default!;
+    
+    [Inject]
+    private ICartService CartService { get; set; } = default!;
 
     [Inject]
     private NavigationManager NavigationManager { get; set; } = default!;
@@ -30,5 +33,10 @@ public partial class Patterns
     private void GoToEdit(int id)
     {
         NavigationManager.NavigateTo($"/editpatterns/{id}");
+    }
+    
+    private async Task HandleAddToCart(int id)
+    {
+        await CartService.AddToCartAsync(id);
     }
 }

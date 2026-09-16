@@ -18,6 +18,7 @@ builder.Services.AddScoped<IYarnCatalogService, YarnCatalogService>();
 builder.Services.AddScoped<IPatternService, PatternService>();
 builder.Services.AddScoped<IPatternImageService, PatternImageService>();
 builder.Services.AddScoped<IShoppingListService, ShoppingListServices>();
+builder.Services.AddScoped<ICartService, CartService>();
 
 builder.Services.AddScoped<IPatternPdfService, PatternPdfService>();
 builder.Services.AddHttpClient();
