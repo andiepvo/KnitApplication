@@ -1,0 +1,48 @@
+@page "/cart"
+@rendermode InteractiveServer
+
+<h1>Shopping Cart</h1>
+<p>Total items: @cartItems.Sum(c => c.Quantity)</p>
+
+<div class="cart-tabs">
+    <button @onclick="ShowRecipeTab" class="@(activeTab == "recipe" ? "active" : "")">Sorted by recipe</button>
+    <button @onclick="ShowIngredientsTab" class="@(activeTab == "ingredients" ? "active" : "")">Sorted by ingredients</button>
+</div>
+
+@if (activeTab == "recipe")
+{
+    @foreach (var item in cartItems)
+    {
+        <div class="cart-pattern-section">
+            <div class="cart-pattern-header">
+                <h3>@item.Pattern.Name</h3>
+                <button @onclick="() => HandleRemovePattern(item.Id)">Remove</button>
+            </div>
+
+            <div class="cart-quantity-stepper">
+                <button @onclick="() => DecreaseQuantity(item)">-</button>
+                <span>@item.Quantity</span>
+                <button @onclick="() => IncreaseQuantity(item)">+</button>
+            </div>
+
+            <div class="cart-materials">
+                @foreach (var material in item.Pattern.Materials.Where(m => !item.ExcludedMaterials.Any(e => e.MaterialId == m.Id)))
+                {
+                    <div class="cart-material-row">
+                        <span>@material.MaterialName (@(material.Quantity * item.Quantity) @material.Unit)</span>
+                        <button @onclick="() => HandleRemoveMaterial(item.Id, material.Id)">X</button>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="cart-ingredients">
+        @foreach (var line in GetAggregatedList())
+        {
+            <div class="cart-ingredient-row">@line.YarnName: @line.TotalQuantity @line.Unit</div>
+        }
+    </div>
+}

@@ -116,4 +116,105 @@ public class CartServiceTests : IDisposable
     {
         await _service.RemoveFromCartAsync(123);
     }
+    
+    [Fact]
+public async Task RemoveMaterialFromCartItemAsync_ExcludesMaterialFromCartItem()
+{
+    // Arrange
+    var pattern = new Pattern
+    {
+        Name = "Test Sweater",
+        Materials = new List<Material>
+        {
+            new Material { MaterialName = "Merino Wool", Quantity = 3, Unit = "Skeins" }
+        }
+    };
+    _context.Patterns.Add(pattern);
+    await _context.SaveChangesAsync();
+
+    var cartItem = new CartItem { PatternId = pattern.Id, Quantity = 1 };
+    _context.CartItems.Add(cartItem);
+    await _context.SaveChangesAsync();
+
+    _context.ChangeTracker.Clear();
+
+    var materialId = pattern.Materials[0].Id;
+
+    // Act
+    await _service.RemoveMaterialFromCartItemAsync(cartItem.Id, materialId);
+
+    // Assert
+    var excluded = await _context.CartItemExcludedMaterials.ToListAsync();
+    Assert.Single(excluded);
+    Assert.Equal(cartItem.Id, excluded[0].CartItemId);
+    Assert.Equal(materialId, excluded[0].MaterialId);
+}
+
+// edge case
+[Fact]
+public async Task RemoveMaterialFromCartItemAsync_CalledTwice_DoesNotCreateDuplicate()
+{
+    // Arrange
+    var pattern = new Pattern
+    {
+        Name = "Test Sweater",
+        Materials = new List<Material>
+        {
+            new Material { MaterialName = "Merino Wool", Quantity = 3, Unit = "Skeins" }
+        }
+    };
+    _context.Patterns.Add(pattern);
+    await _context.SaveChangesAsync();
+
+    var cartItem = new CartItem { PatternId = pattern.Id, Quantity = 1 };
+    _context.CartItems.Add(cartItem);
+    await _context.SaveChangesAsync();
+
+    _context.ChangeTracker.Clear();
+
+    var materialId = pattern.Materials[0].Id;
+
+    // Act
+    await _service.RemoveMaterialFromCartItemAsync(cartItem.Id, materialId);
+    await _service.RemoveMaterialFromCartItemAsync(cartItem.Id, materialId);
+
+    // Assert
+    var excluded = await _context.CartItemExcludedMaterials.ToListAsync();
+    Assert.Single(excluded);
+}
+
+[Fact]
+public async Task GetCartAsync_ReflectsExcludedMaterials()
+{
+    // Arrange
+    var pattern = new Pattern
+    {
+        Name = "Test Sweater",
+        Materials = new List<Material>
+        {
+            new Material { MaterialName = "Merino Wool", Quantity = 3, Unit = "Skeins" }
+        }
+    };
+    _context.Patterns.Add(pattern);
+    await _context.SaveChangesAsync();
+
+    var cartItem = new CartItem { PatternId = pattern.Id, Quantity = 1 };
+    _context.CartItems.Add(cartItem);
+    await _context.SaveChangesAsync();
+
+    _context.ChangeTracker.Clear();
+
+    var materialId = pattern.Materials[0].Id;
+    await _service.RemoveMaterialFromCartItemAsync(cartItem.Id, materialId);
+
+    _context.ChangeTracker.Clear();
+
+    // Act
+    var result = await _service.GetCartAsync();
+
+    // Assert
+    Assert.Single(result);
+    Assert.Single(result[0].ExcludedMaterials);
+    Assert.Equal(materialId, result[0].ExcludedMaterials[0].MaterialId);
+}
 }

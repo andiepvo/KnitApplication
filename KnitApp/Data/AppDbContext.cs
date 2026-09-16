@@ -16,4 +16,6 @@ public class AppDbContext : DbContext
     public DbSet<PatternImage> PatternImages { get; set; }
 
     public DbSet<CartItem> CartItems { get; set; }
+    
+    public DbSet<CartItemExcludedMaterial> CartItemExcludedMaterials { get; set; }
 }

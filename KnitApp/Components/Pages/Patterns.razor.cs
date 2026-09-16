@@ -51,4 +51,9 @@ public partial class Patterns
     {
         toastMessage = null;
     }
+    
+    private void GoToCart()
+    {
+        NavigationManager.NavigateTo("/cart");
+    }
 }

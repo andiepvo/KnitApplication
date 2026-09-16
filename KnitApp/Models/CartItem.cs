@@ -8,4 +8,6 @@ public class CartItem
     public Pattern Pattern { get; set; } = null!;
 
     public int Quantity { get; set; } = 1;
+    
+    public List<CartItemExcludedMaterial> ExcludedMaterials { get; set; } = new();
 }

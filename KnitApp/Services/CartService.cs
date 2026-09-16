@@ -42,5 +42,25 @@ public class CartService : ICartService
     }
 
     public async Task<List<CartItem>> GetCartAsync() =>
-        await _context.CartItems.Include(c => c.Pattern).ToListAsync();
+        await _context.CartItems
+            .Include(c => c.Pattern)
+            .ThenInclude(p => p.Materials)
+            .Include(c => c.ExcludedMaterials)
+            .ToListAsync();
+
+    public async Task RemoveMaterialFromCartItemAsync(int cartItemId, int materialId)
+    {
+        var isExcluded = await _context.CartItemExcludedMaterials
+            .AnyAsync(e => e.CartItemId == cartItemId && e.MaterialId == materialId);
+
+        if (!isExcluded)
+        {
+            _context.CartItemExcludedMaterials.Add(new CartItemExcludedMaterial
+            {
+                CartItemId = cartItemId,
+                MaterialId = materialId
+            });
+            await _context.SaveChangesAsync();
+        }
+    }
 }
