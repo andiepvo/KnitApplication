@@ -9,7 +9,7 @@ public partial class Patterns
     // Injected dependencies
     [Inject]
     private IPatternService PatternService { get; set; } = default!;
-    
+
     [Inject]
     private ICartService CartService { get; set; } = default!;
 
@@ -18,6 +18,7 @@ public partial class Patterns
 
     // Fields
     private List<Pattern> patterns = new();
+    private string? toastMessage;
 
     // Lifecycle methods
     protected override async Task OnInitializedAsync() =>
@@ -34,9 +35,20 @@ public partial class Patterns
     {
         NavigationManager.NavigateTo($"/editpatterns/{id}");
     }
-    
+
     private async Task HandleAddToCart(int id)
     {
         await CartService.AddToCartAsync(id);
+
+        var pattern = patterns.First(p => p.Id == id);
+        var cart = await CartService.GetCartAsync();
+        var totalItems = cart.Sum(c => c.Quantity);
+
+        toastMessage = $"{pattern.Name} added to cart! ({totalItems} items in cart)";
+    }
+
+    private void CloseToast()
+    {
+        toastMessage = null;
     }
 }
