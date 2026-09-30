@@ -8,15 +8,14 @@ public class ShoppingListServices : IShoppingListService
     // Takes in a list of selected Pattern objects
     public List<ShoppingListItemDto> GenerateShoppingList(List<Pattern> patterns)
     {
-        List<ShoppingListItemDto> result = (
+        List<ShoppingListItemDto> result = patterns
             // Merges all materials across all the patterns into a single combined list
-            from pattern in patterns
-            from material in pattern.Materials
-            // Groups the materials by yarn name, so identical yarn types end up together
-            group material by material.MaterialName
-            into materialGroup 
+            .SelectMany(pattern => pattern.Materials)
+            // Groups the materials by yarn name (case-insensitive), so "Sandnes Duo"
+            // and "sandnes duo" end up in the same group
+            .GroupBy(material => material.MaterialName, StringComparer.OrdinalIgnoreCase)
             // one aggregated shopping list row per group
-            select new ShoppingListItemDto
+            .Select(materialGroup => new ShoppingListItemDto
             {
                 YarnName = materialGroup.Key,
                 TotalQuantity = materialGroup.Sum(material => material.Quantity),
