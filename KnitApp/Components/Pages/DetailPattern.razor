@@ -1,4 +1,51 @@
-@page "/detailpatterns" 
+@page "/detailpatterns/{id:int}" 
+@rendermode InteractiveServer
 
-<h1>Detail about pattern</h1>
-<p>This is where you can see the pattern in more detail</p>
+@if (pattern is null)
+{
+    <p> Pattern not found.</p>
+}
+else
+{
+    <h1>@pattern.Name</h1>
+    <p>Created: @pattern.CreatedOn.ToShortDateString()</p>
+    <p>Type: @pattern.CraftType - @pattern.PatternType</p>
+    
+    <button @onclick="AddToCart">Add to cart</button>
+
+    @if (toastMessage is not null)
+    {
+        <div class="toast">
+            @toastMessage
+            <button @onclick="CloseToast">×</button>
+        </div>
+    }
+    
+    <h2>Materials</h2>
+    <ul>
+        @foreach (var material in pattern.Materials)
+        {
+            <li>@material.MaterialName - @material.Quantity (@material.ColorOfYarn)</li>
+        }
+    </ul>
+    
+    <h2>Equipment</h2>
+    <ul>
+        @foreach (var equipment in pattern.Equipment)
+        {
+            <li>@equipment.EquipmentType - @equipment.Size (@equipment.Length)</li>
+        }
+    </ul>
+    
+    <h2>Description</h2>
+    <p>@pattern.Description</p>
+    
+    <h2>Instructions</h2>
+    <p>@pattern.Instructions</p>
+    
+    @if (!string.IsNullOrEmpty(pattern.InstructionsPdf))
+    {
+        <h2>PDF</h2>
+        <a href ="@pattern.InstructionsPdf" target="_blank">Download instructions (PDF)</a>
+    }
+}
