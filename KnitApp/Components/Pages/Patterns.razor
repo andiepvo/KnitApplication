@@ -20,6 +20,7 @@
              <h3>@pattern.Name</h3>
              <span>(Created: @pattern.CreatedOn.ToLocalTime().ToString("dd.MM.yyyy"))</span>
              <div class="pattern-card-actions">
+                 <a href="detailpatterns/@pattern.Id">View details</a>
                  <button @onclick="() => GoToEdit(pattern.Id)">Edit</button>
                  <button @onclick="() => HandleDelete(pattern.Id)">Delete</button>
                  <button @onclick="() => HandleAddToCart(pattern.Id)">Add to cart</button>
