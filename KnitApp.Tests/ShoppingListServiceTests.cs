@@ -116,5 +116,99 @@ public class ShoppingListServiceTests
         Assert.Single(result);
         Assert.Equal(8, result[0].TotalQuantity);
     }
-}
 
+    [Fact]
+    public void GenerateShoppingList_EmptyPatternList_ReturnsEmptyList()
+    {
+        var patterns = new List<Pattern>();
+
+        var service = new ShoppingListServices();
+
+        var result = service.GenerateShoppingList(patterns);
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void GenerateShoppingList_PatternWithNoMaterials_ReturnsEmptyList()
+    {
+        var pattern = new Pattern
+        {
+            Materials = new List<Material>()
+        };
+
+        var patterns = new List<Pattern> { pattern };
+
+        var service = new ShoppingListServices();
+
+        var result = service.GenerateShoppingList(patterns);
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void GenerateShoppingList_SinglePattern_ReturnsSingleItem()
+    {
+        var material = new Material
+        {
+            MaterialName = "Sandnes Duo",
+            Quantity = 5,
+            Unit = "Skeins"
+        };
+
+        var pattern = new Pattern
+        {
+            Materials = new List<Material> { material }
+        };
+
+        var patterns = new List<Pattern> { pattern };
+
+        var service = new ShoppingListServices();
+
+        var result = service.GenerateShoppingList(patterns);
+
+        Assert.Single(result);
+        Assert.Equal(5, result[0].TotalQuantity);
+    }
+
+    [Fact]
+    public void GenerateShoppingList_MultipleDifferentMaterialsInSamePattern_AreListedSeparately()
+    {
+        var material1 = new Material
+        {
+            MaterialName = "Sandnes Duo",
+            Quantity = 5,
+            Unit = "Skeins"
+        };
+
+        var material2 = new Material
+        {
+            MaterialName = "Sandnes Line",
+            Quantity = 2,
+            Unit = "Skeins"
+        };
+
+        var pattern = new Pattern
+        {
+            Materials = new List<Material> { material1, material2 }
+        };
+
+        var patterns = new List<Pattern> { pattern };
+
+        var service = new ShoppingListServices();
+
+        var result = service.GenerateShoppingList(patterns);
+
+        Assert.Equal(2, result.Count);
+    }
+
+    [Fact]
+    public void GenerateShoppingList_NullPatternList_ReturnsEmptyList()
+    {
+        var service = new ShoppingListServices();
+
+        var result = service.GenerateShoppingList(null!);
+
+        Assert.Empty(result);
+    }
+}
