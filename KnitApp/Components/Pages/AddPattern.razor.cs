@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using KnitApp.Models;
 using KnitApp.Services;
 using Microsoft.AspNetCore.Components;
@@ -8,18 +7,16 @@ namespace KnitApp.Components.Pages;
 
 public partial class AddPattern
 {
+    private string? errorMessage;
+
     // Injected dependencies
-    [Inject]
-    private IHttpClientFactory HttpClientFactory { get; set; } = default!;
+    [Inject] private IHttpClientFactory HttpClientFactory { get; set; } = default!;
 
-    [Inject]
-    private NavigationManager Navigation { get; set; } = default!;
+    [Inject] private NavigationManager Navigation { get; set; } = default!;
 
-    [Inject]
-    private IPatternService PatternService { get; set; } = default!;
+    [Inject] private IPatternService PatternService { get; set; } = default!;
 
-    [Inject]
-    private IYarnCatalogService YarnCatalogService { get; set; } = default!;
+    [Inject] private IYarnCatalogService YarnCatalogService { get; set; } = default!;
 
     // Fields
     [SupplyParameterFromForm]
@@ -46,13 +43,19 @@ public partial class AddPattern
         newPattern.Materials = newPattern.Materials
             .Where(m => !string.IsNullOrWhiteSpace(m.MaterialName))
             .ToList();
-        
+
         //show actually date and time when the pattern is created
         newPattern.CreatedOn = DateTime.UtcNow;
 
-        await PatternService.AddAsync(newPattern);
-        Navigation.NavigateTo("/patterns");
-        //to navigate user to another page in the code
+        try
+        {
+            await PatternService.AddAsync(newPattern);
+            Navigation.NavigateTo("/patterns");
+        }
+        catch (Exception)
+        {
+            errorMessage = "Something went wrong while saving the pattern. Please try again.";
+        }
     }
 
     private void RemoveEquipment(Equipment equipment)
@@ -93,22 +96,32 @@ public partial class AddPattern
     private async Task HandlePdfUpload(InputFileChangeEventArgs e)
     {
         isUploadingPdf = true;
+        errorMessage = null;
 
-        var file = e.File;
-        var stream = file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
+        try
+        {
+            var file = e.File;
+            var stream = file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
 
-        using var content = new MultipartFormDataContent();
-        content.Add(new StreamContent(stream), "file", file.Name);
+            using var content = new MultipartFormDataContent();
+            content.Add(new StreamContent(stream), "file", file.Name);
 
-        var client = HttpClientFactory.CreateClient();
-        client.BaseAddress = new Uri(Navigation.BaseUri);
+            var client = HttpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(Navigation.BaseUri);
 
-        var response = await client.PostAsync("api/patterns/pdf", content);
-        response.EnsureSuccessStatusCode();
+            var response = await client.PostAsync("api/patterns/pdf", content);
+            response.EnsureSuccessStatusCode();
 
-        var result = await response.Content.ReadFromJsonAsync<PdfUploadResultDto>();
-        newPattern.InstructionsPdf = result!.FilePath;
-
-        isUploadingPdf = false;
+            var result = await response.Content.ReadFromJsonAsync<PdfUploadResultDto>();
+            newPattern.InstructionsPdf = result!.FilePath;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Something went wrong while uploading the PDF. Please try again.";
+        }
+        finally
+        {
+            isUploadingPdf = false;
+        }
     }
 }

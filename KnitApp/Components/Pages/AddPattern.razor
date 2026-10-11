@@ -8,8 +8,10 @@
 <p>This is where you can add patterns</p>
 
 <EditForm Model="newPattern" OnValidSubmit="HandleSubmit" FormName="AddPatternForm">
+    <DataAnnotationsValidator />
+    
     <label>
-        Pattern name
+        Pattern name *
         <InputText @bind-Value="newPattern.Name" />
     </label>
 
@@ -18,19 +20,19 @@
         {
             <div @key="material" class="material-row">
                 <label>
-                    Yarn name
+                    Yarn name *
                     <YarnNameAutocomplete @bind-Value="material.MaterialName" Suggestions="yarnCatalog" />
                 </label>
 
                 <label>
-                    Quantity
+                    Quantity *
                     <button type="button" @onclick="() => DecreaseQuantity(material)">−</button>
                     <InputNumber @bind-Value="material.Quantity" />
                     <button type="button" @onclick="() => IncreaseQuantity(material)">+</button>
                 </label>
 
                 <label>
-                    Unit
+                    Unit *
                     <InputSelect @bind-Value="material.Unit">
                         <option value="">Select unit</option>
                         <option value="Skeins">Skeins</option>
@@ -114,6 +116,13 @@
 
     <InputText @bind-Value="newPattern.InstructionsPdf" type="hidden" />
 
+    @if (errorMessage is not null)
+    {
+        <p style="color: red;">@errorMessage</p>
+    }
+    
+    <ValidationSummary />
+    
     <div class="form-actions">
         <button type="submit" disabled="@isUploadingPdf">Save</button>
     </div>

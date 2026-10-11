@@ -8,21 +8,23 @@
     Model="editingPattern"
     OnValidSubmit="HandleSubmit"
     FormName="EditPatternForm">
+    <DataAnnotationsValidator />
+    
     <label>
-        Pattern name
+        Pattern name*
         <InputText @bind-Value="editingPattern.Name"/>
     </label>
 
     <label>
         Photos
-        <InputFile OnChange="HandleImageUpload" multiple accept="image/*" capture="environment" />
+        <InputFile OnChange="HandleImageUpload" multiple accept="image/*" capture="environment"/>
     </label>
 
     <div class="photo-thumbnails">
         @foreach (var image in patternImages)
         {
             <div class="photo-item">
-                <img src="@image.FilePath" alt="Pattern photo" class="thumbnail" />
+                <img src="@image.FilePath" alt="Pattern photo" class="thumbnail"/>
                 <button type="button" @onclick="() => RemoveImage(image)">Remove</button>
             </div>
         }
@@ -34,19 +36,19 @@
             <div @key="material" class="material-row">
 
                 <label>
-                    Yarn name
-                    <YarnNameAutocomplete @bind-Value="material.MaterialName" Suggestions="yarnCatalog" />
+                    Yarn name*
+                    <YarnNameAutocomplete @bind-Value="material.MaterialName" Suggestions="yarnCatalog"/>
                 </label>
 
                 <label>
-                    Quantity
+                    Quantity*
                     <button type="button" @onclick="() => ChangeQuantity(material, -1)">−</button>
-                    <InputNumber @bind-Value="material.Quantity" />
+                    <InputNumber @bind-Value="material.Quantity"/>
                     <button type="button" @onclick="() => ChangeQuantity(material, 1)">+</button>
                 </label>
 
                 <label>
-                    Unit
+                    Unit*
                     <InputSelect @bind-Value="material.Unit">
                         <option value="">Select unit</option>
                         <option value="Skeins">Skeins</option>
@@ -59,7 +61,7 @@
 
                 <label>
                     Color (optional)
-                    <InputText @bind-Value="material.ColorOfYarn" />
+                    <InputText @bind-Value="material.ColorOfYarn"/>
                 </label>
 
                 @if (editingPattern.Materials.Count > 1)
@@ -73,11 +75,11 @@
             <div @key="equipment" class="equipment-row">
                 <label>
                     Equipment
-                    <YarnNameAutocomplete @bind-Value="equipment.EquipmentType" />
+                    <YarnNameAutocomplete @bind-Value="equipment.EquipmentType"/>
                 </label>
                 <label>
                     Size (mm)
-                    <InputNumber @bind-Value="equipment.Size" />
+                    <InputNumber @bind-Value="equipment.Size"/>
                 </label>
                 <label>
                     Length (cm)
@@ -112,26 +114,33 @@
 
     <label>
         Description
-        <InputTextArea @bind-Value="editingPattern.Description" rows="3" style="width: 100%;" />
+        <InputTextArea @bind-Value="editingPattern.Description" rows="3" style="width: 100%;"/>
     </label>
 
     <label>
         Instructions
-        <InputTextArea @bind-Value="editingPattern.Instructions" rows="10" style="width: 100%; resize: both;" />
+        <InputTextArea @bind-Value="editingPattern.Instructions" rows="10" style="width: 100%; resize: both;"/>
     </label>
     <label>
         Instructions PDF (optional)
-        <InputFile OnChange="HandlePdfUpload" accept=".pdf,application/pdf" />
+        <InputFile OnChange="HandlePdfUpload" accept=".pdf,application/pdf"/>
     </label>
-    <InputText @bind-Value="editingPattern.InstructionsPdf" type="hidden" />
+    <InputText @bind-Value="editingPattern.InstructionsPdf" type="hidden"/>
 
     @if (!string.IsNullOrEmpty(editingPattern.InstructionsPdf))
     {
         <a href="@editingPattern.InstructionsPdf" target="_blank">View current PDF</a>
     }
+    
+    @if (errorMessage is not null)
+    {
+        <p style="color: red;">@errorMessage</p>
+    }
+
+    <ValidationSummary />
 
     <div class="form-actions">
-        <button type="submit" disabled="@isUploadingPdf">Save changes</button>
+        <button type="submit" disabled="@(isUploadingPdf || isUploadingImages)">Save changes</button>
     </div>
 
 </EditForm>

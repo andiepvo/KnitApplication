@@ -8,6 +8,8 @@ namespace KnitApp.Components.Pages;
 
 public partial class EditPatterns
 {
+    private string? errorMessage;
+    
     // Injected dependencies
     [Inject]
     private IHttpClientFactory HttpClientFactory { get; set; } = default!;
@@ -92,28 +94,33 @@ public partial class EditPatterns
     // Event handlers / other methods
     protected async Task HandleSubmit()
     {
-        var pattern = await PatternService.GetByIdAsync(Id);
-        if (pattern != null)
+        try
         {
-            pattern.Name = editingPattern.Name;
-            pattern.CraftType = editingPattern.CraftType;
-            pattern.PatternType = editingPattern.PatternType;
-            pattern.Description = editingPattern.Description;
-            pattern.Instructions = editingPattern.Instructions;
-            pattern.InstructionsPdf = editingPattern.InstructionsPdf;
+            var pattern = await PatternService.GetByIdAsync(Id);
+            if (pattern != null)
+            {
+                pattern.Name = editingPattern.Name;
+                pattern.CraftType = editingPattern.CraftType;
+                pattern.PatternType = editingPattern.PatternType;
+                pattern.Description = editingPattern.Description;
+                pattern.Instructions = editingPattern.Instructions;
+                pattern.InstructionsPdf = editingPattern.InstructionsPdf;
 
-            // Ignore empty rows in material section
-            pattern.Materials = editingPattern.Materials
-                .Where(m => !string.IsNullOrWhiteSpace(m.MaterialName))
-                .ToList();
+                pattern.Materials = editingPattern.Materials
+                    .Where(m => !string.IsNullOrWhiteSpace(m.MaterialName))
+                    .ToList();
 
-            // Ignore empty rows in equipment section
-            pattern.Equipment = editingPattern.Equipment
-                .Where(e => !string.IsNullOrWhiteSpace(e.EquipmentType))
-                .ToList();
+                pattern.Equipment = editingPattern.Equipment
+                    .Where(e => !string.IsNullOrWhiteSpace(e.EquipmentType))
+                    .ToList();
 
-            await PatternService.UpdateAsync(pattern);
-            Navigation.NavigateTo("/patterns");
+                await PatternService.UpdateAsync(pattern);
+                Navigation.NavigateTo("/patterns");
+            }
+        }
+        catch (Exception)
+        {
+            errorMessage = "Something went wrong while saving the pattern. Please try again.";
         }
     }
 
@@ -146,41 +153,74 @@ public partial class EditPatterns
         editingPattern.Equipment.Add(new Equipment());
     }
 
+    private bool isUploadingImages = false;
+    
     private async Task HandleImageUpload(InputFileChangeEventArgs e)
     {
-        foreach (var file in e.GetMultipleFiles())
+        isUploadingImages = true;
+        errorMessage = null;
+
+        try
         {
-            var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
-            var savedImage = await PatternImageService.SaveImageAsync(Id, stream, file.Name);
-            patternImages.Add(savedImage);
+            foreach (var file in e.GetMultipleFiles())
+            {
+                var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+                var savedImage = await PatternImageService.SaveImageAsync(Id, stream, file.Name);
+                patternImages.Add(savedImage);
+            }
+        }
+        catch (Exception)
+        {
+            errorMessage = "Something went wrong while uploading one or more photos. Please try again.";
+        }
+        finally
+        {
+            isUploadingImages = false;
         }
     }
 
     private async Task RemoveImage(PatternImage image)
     {
-        await PatternImageService.DeleteImageAsync(image.Id);
-        patternImages.Remove(image);
+        try
+        {
+            await PatternImageService.DeleteImageAsync(image.Id);
+            patternImages.Remove(image);
+        }
+        catch (Exception)
+        {
+            errorMessage = "Something went wrong while removing the photo. Please try again.";
+        }
     }
 
     private async Task HandlePdfUpload(InputFileChangeEventArgs e)
     {
         isUploadingPdf = true;
+        errorMessage = null;
 
-        var file = e.File;
-        var stream = file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
+        try
+        {
+            var file = e.File;
+            var stream = file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
 
-        using var content = new MultipartFormDataContent();
-        content.Add(new StreamContent(stream), "file", file.Name);
+            using var content = new MultipartFormDataContent();
+            content.Add(new StreamContent(stream), "file", file.Name);
 
-        var client = HttpClientFactory.CreateClient();
-        client.BaseAddress = new Uri(Navigation.BaseUri);
+            var client = HttpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(Navigation.BaseUri);
 
-        var response = await client.PostAsync("api/patterns/pdf", content);
-        response.EnsureSuccessStatusCode();
+            var response = await client.PostAsync("api/patterns/pdf", content);
+            response.EnsureSuccessStatusCode();
 
-        var result = await response.Content.ReadFromJsonAsync<PdfUploadResultDto>();
-        editingPattern.InstructionsPdf = result!.FilePath;
-
-        isUploadingPdf = false;
+            var result = await response.Content.ReadFromJsonAsync<PdfUploadResultDto>();
+            editingPattern.InstructionsPdf = result!.FilePath;
+        }
+        catch (Exception)
+        {
+            errorMessage = "Something went wrong while uploading the PDF. Please try again.";
+        }
+        finally
+        {
+            isUploadingPdf = false;
+        }
     }
 }

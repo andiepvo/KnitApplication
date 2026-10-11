@@ -1,10 +1,15 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace KnitApp.Models;
 
 //Represent a saved pattern and shows the different elements of the pattern should include
-public class Pattern
+public class Pattern : IValidatableObject
 {
     public int Id { get; set; } //the primary key for each recipe
+   
+    [Required(ErrorMessage = "Pattern name is required.")]
     public string Name { get; set; } = string.Empty; //name of the recipe
+
     public PatternType PatternType { get; set; } //Which pattern type
     public CraftType CraftType { get; set; }
     public string? Description { get; set; } 
@@ -16,6 +21,23 @@ public class Pattern
     public List<Equipment> Equipment { get; set; } = new(); //list of needed equipments in the pattern
     public List<Section> Sections { get; set; } = new(); //list of sections in the recipe, for example arm, yoke etc.
     public string? InstructionsPdf { get; set; } //user can add a pdf file
+    
+    //Validates each Material in the list manually
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        for (int i = 0; i < Materials.Count; i++)
+        {
+            var material = Materials[i];
+            var results = new List<ValidationResult>();
+
+            Validator.TryValidateObject(material, new ValidationContext(material), results, validateAllProperties: true);
+
+            foreach (var result in results)
+            {
+                yield return new ValidationResult(result.ErrorMessage!, new[] { nameof(Materials) });
+            }
+        }
+    }
     
 
 }
