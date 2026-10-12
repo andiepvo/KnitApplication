@@ -9,20 +9,36 @@ public partial class DetailPattern
     [Inject] 
     private IPatternService PatternService { get; set; } = default!;
     
+    [Inject] 
+    private ICartService CartService { get; set; } = default!;
+    
+    [Inject] 
+    private IPatternImageService PatternImageService { get; set; } = default!;
+    
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+
+    private void GoBack() => NavigationManager.NavigateTo("/patterns");
+    
     [Parameter]  
     public int Id { get; set; }
 
     private Pattern? pattern;
+    private string? heroImage;
+    private string? toastMessage;
+    
+    private List<string> heroImages = new();
 
     protected override async Task OnInitializedAsync()
     {
         pattern = await PatternService.GetByIdAsync(Id);
-    }
 
-    [Inject] 
-    private ICartService CartService { get; set; } = default!;
-    
-    private string? toastMessage;
+        var images = await PatternImageService.GetImagesForPatternAsync(Id);
+        heroImages = images
+            .Select(i => i.FilePath)
+            .Where(p => !string.IsNullOrEmpty(p))
+            .ToList()!;
+    }
 
     private async Task AddToCart()
     {

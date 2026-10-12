@@ -1,51 +1,133 @@
-@page "/detailpatterns/{id:int}" 
+@page "/detailpatterns/{id:int}"
 @rendermode InteractiveServer
 
 @if (pattern is null)
 {
-    <p> Pattern not found.</p>
+    <MudText Typo="Typo.body1">Pattern not found.</MudText>
 }
 else
 {
-    <h1>@pattern.Name</h1>
-    <p>Created: @pattern.CreatedOn.ToShortDateString()</p>
-    <p>Type: @pattern.CraftType - @pattern.PatternType</p>
-    
-    <button @onclick="AddToCart">Add to cart</button>
-
-    @if (toastMessage is not null)
-    {
-        <div class="toast">
-            @toastMessage
-            <button @onclick="CloseToast">×</button>
+    <MudCard Class="detail-card mb-4">
+        <div class="detail-hero-wrap">
+            @if (heroImages.Count > 1)
+            {
+                <MudCarousel Class="detail-carousel" TData="object" ShowArrows="true" ShowBullets="true" EnableSwipeGesture="true" AutoCycle="false">
+                    @foreach (var image in heroImages)
+                    {
+                        <MudCarouselItem Transition="Transition.Slide">
+                            <div class="detail-carousel-image" style="background-image: url('@image');"></div>
+                        </MudCarouselItem>
+                    }
+                </MudCarousel>
+            }
+            else if (heroImages.Count == 1)
+            {
+                <MudCardMedia Image="@heroImages[0]" Height="360" />
+            }
+            else
+            {
+                <div class="detail-hero-placeholder">
+                    <MudText>No picture</MudText>
+                </div>
+            }
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
+                           Class="detail-back-button"
+                           OnClick="GoBack" />
         </div>
-    }
     
-    <h2>Materials</h2>
-    <ul>
-        @foreach (var material in pattern.Materials)
-        {
-            <li>@material.MaterialName - @material.Quantity (@material.ColorOfYarn)</li>
-        }
-    </ul>
-    
-    <h2>Equipment</h2>
-    <ul>
-        @foreach (var equipment in pattern.Equipment)
-        {
-            <li>@equipment.EquipmentType - @equipment.Size (@equipment.Length)</li>
-        }
-    </ul>
-    
-    <h2>Description</h2>
-    <p>@pattern.Description</p>
-    
-    <h2>Instructions</h2>
-    <p>@pattern.Instructions</p>
-    
-    @if (!string.IsNullOrEmpty(pattern.InstructionsPdf))
-    {
-        <h2>PDF</h2>
-        <a href ="@pattern.InstructionsPdf" target="_blank">Download instructions (PDF)</a>
-    }
+
+        <MudCardContent Class="pa-4">
+            <div class="d-flex justify-space-between align-center mb-2">
+                <MudChip T="string" Size="Size.Small" Color="Color.Tertiary">@pattern.CraftType</MudChip>
+                <MudText Typo="Typo.caption" Style="color: var(--mud-palette-text-secondary);">
+                    @pattern.PatternType
+                </MudText>
+            </div>
+
+            <MudText Typo="Typo.h4" Class="mb-1">@pattern.Name</MudText>
+            <MudText Typo="Typo.body2" Style="color: var(--mud-palette-text-secondary);" Class="mb-3">
+                Created @pattern.CreatedOn.ToLocalTime().ToString("MMMM d, yyyy")
+            </MudText>
+
+            @if (toastMessage is not null)
+            {
+                <MudAlert Severity="Severity.Success" Class="mb-3" ShowCloseIcon="true" CloseIconClicked="CloseToast">
+                    @toastMessage
+                </MudAlert>
+            }
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.ShoppingCart"
+                       Class="pattern-add-button mb-4"
+                       OnClick="AddToCart">
+                Add to cart
+            </MudButton>
+
+            <MudDivider Class="mb-3" />
+
+            <MudText Typo="Typo.h6" Class="mb-2">Materials</MudText>
+            @foreach (var material in pattern.Materials)
+            {
+                <div class="d-flex justify-space-between align-center py-1">
+                    <MudText Typo="Typo.body2">
+                        @material.MaterialName
+                        @if (!string.IsNullOrEmpty(material.ColorOfYarn))
+                        {
+                            <text> — @material.ColorOfYarn</text>
+                        }
+                    </MudText>
+                    <MudText Typo="Typo.body2" Style="color: var(--mud-palette-text-secondary);">
+                        @material.Quantity @material.Unit
+                    </MudText>
+                </div>
+            }
+
+            @if (pattern.Equipment.Any())
+            {
+                <MudDivider Class="my-3" />
+                <MudText Typo="Typo.h6" Class="mb-2">Equipment</MudText>
+                @foreach (var equipment in pattern.Equipment)
+                {
+                    <MudText Typo="Typo.body2" Class="py-1">
+                        @equipment.EquipmentType
+                        @if (equipment.Size.HasValue)
+                        {
+                            <text> — @equipment.Size.Value mm</text>
+                        }
+                        @if (equipment.Length.HasValue)
+                        {
+                            <text>, @equipment.Length.Value cm</text>
+                        }
+                    </MudText>
+                }
+            }
+
+            @if (!string.IsNullOrEmpty(pattern.Description))
+            {
+                <MudDivider Class="my-3" />
+                <MudText Typo="Typo.h6" Class="mb-2">Description</MudText>
+                <MudText Typo="Typo.body2">@pattern.Description</MudText>
+            }
+
+            @if (!string.IsNullOrEmpty(pattern.Instructions))
+            {
+                <MudDivider Class="my-3" />
+                <MudText Typo="Typo.h6" Class="mb-2">Instructions</MudText>
+                <MudText Typo="Typo.body2" Style="white-space: pre-line;">@pattern.Instructions</MudText>
+            }
+
+            @if (!string.IsNullOrEmpty(pattern.InstructionsPdf))
+            {
+                <MudDivider Class="my-3" />
+                <MudButton Variant="Variant.Text"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.PictureAsPdf"
+                           Href="@pattern.InstructionsPdf"
+                           Target="_blank">
+                    Download instructions (PDF)
+                </MudButton>
+            }
+        </MudCardContent>
+    </MudCard>
 }

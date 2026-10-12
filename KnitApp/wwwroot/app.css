@@ -189,4 +189,47 @@ button {
     padding: 12px;
 }
 
+.detail-card {
+    border-radius: 16px;
+    overflow: hidden;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.detail-hero-placeholder {
+    height: 360px;
+    background-color: var(--mud-palette-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.detail-hero-wrap {
+    position: relative;
+}
+
+.detail-back-button {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background-color: rgba(255, 255, 255, 0.85);
+}
+
+.detail-back-button:hover {
+    background-color: rgba(255, 255, 255, 1);
+}
+
+.detail-carousel {
+    height: 360px;
+}
+
+.detail-carousel-image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+}
+
+
 
