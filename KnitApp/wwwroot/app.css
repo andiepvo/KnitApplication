@@ -106,3 +106,29 @@ button {
     align-items: center;
     gap: 0.25rem;
 }
+
+.pattern-card {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.pattern-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+.pattern-add-button {
+    border-radius: 12px;
+}
+
+.mud-button-root {
+    text-transform: none;
+}
+
+.pattern-thumbnail {
+    transition: opacity 0.15s ease-in-out;
+}
+.pattern-thumbnail:hover {
+    opacity: 0.85;
+}
+.mud-card {
+    overflow: hidden;
+    border-radius: 12px; 
+}

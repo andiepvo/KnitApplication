@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using KnitApp.Data;
 using KnitApp.Services;
+using MudBlazor.Services;
 
 namespace KnitApp.Extensions;
 
@@ -21,5 +22,7 @@ public static class ServiceConfiguration
         services.AddHttpClient();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
+
+        services.AddMudServices();
     }
 }

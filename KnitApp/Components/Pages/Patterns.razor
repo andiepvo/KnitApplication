@@ -1,30 +1,60 @@
 @page "/patterns"
 @rendermode InteractiveServer
 
-<h1>Patterns</h1>
-<p>This is where your saved patterns will be listed</p>
+<MudText Typo="Typo.h4" Class="mb-2">Patterns</MudText>
 
 @if (toastMessage != null)
 {
-    <div class="toast">
+    <MudAlert Severity="Severity.Success" Class="mb-4" ShowCloseIcon="true" CloseIconClicked="CloseToast">
         @toastMessage
-        <button @onclick="GoToCart">View cart</button>
-        <button @onclick="CloseToast">×</button>
-    </div>
+        <MudButton Variant="Variant.Text" OnClick="GoToCart">View cart</MudButton>
+    </MudAlert>
 }
 
-<div class="pattern-cards">
-     @foreach (var pattern in patterns)
-     {
-         <div class="pattern-card">
-             <h3>@pattern.Name</h3>
-             <span>(Created: @pattern.CreatedOn.ToLocalTime().ToString("dd.MM.yyyy"))</span>
-             <div class="pattern-card-actions">
-                 <a href="detailpatterns/@pattern.Id">View details</a>
-                 <button @onclick="() => GoToEdit(pattern.Id)">Edit</button>
-                 <button @onclick="() => HandleDelete(pattern.Id)">Delete</button>
-                 <button @onclick="() => HandleAddToCart(pattern.Id)">Add to cart</button>
-             </div>
-         </div>
+<MudGrid Spacing="4">
+    @foreach (var pattern in patterns)
+    {
+        <MudItem xs="12" sm="6" md="4">
+            <MudCard Class="pattern-card">
+                <div class="pattern-thumbnail" style="cursor: pointer;" @onclick="() => GoToDetails(pattern.Id)">
+                    @if (patternThumbnails.TryGetValue(pattern.Id, out var thumbnail) && !string.IsNullOrEmpty(thumbnail))
+                    {
+                        <MudCardMedia Image="@thumbnail" Height="280" />
+                    }
+                    else
+                    {
+                        <div style="height: 280px; background-color: var(--mud-palette-tertiary); display: flex; align-items: center; justify-content: center;">
+                            <MudText>No picture</MudText>
+                        </div>
+                    }
+                </div>
+
+                <MudCardContent Class="pa-4">
+                    <div class="d-flex justify-space-between align-center mb-2">
+                        <MudChip T="string" Size="Size.Small" Color="Color.Tertiary">@pattern.CraftType</MudChip>
+                        <div>
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick="() => GoToEdit(pattern.Id)" Title="Edit" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => HandleDelete(pattern.Id)" Title="Delete" />
+                        </div>
+                    </div>
+
+                    <MudText Typo="Typo.h5" Class="mb-1">@pattern.Name</MudText>
+                    <MudText Typo="Typo.body2" Style="color: var(--mud-palette-text-secondary);">
+                        Created @pattern.CreatedOn.ToLocalTime().ToString("MMMM d, yyyy")
+                    </MudText>
+                </MudCardContent>
+
+                <MudCardActions Class="pa-4 pt-0">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               FullWidth="true"
+                               StartIcon="@Icons.Material.Filled.ShoppingCart"
+                               Class="pattern-add-button"
+                               OnClick="() => HandleAddToCart(pattern.Id)">
+                        Add to cart
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
     }
-</div>
+</MudGrid>

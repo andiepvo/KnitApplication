@@ -14,26 +14,49 @@ public partial class Patterns
     private ICartService CartService { get; set; } = default!;
 
     [Inject]
+    private IPatternImageService PatternImageService { get; set; } = default!;
+
+    [Inject]
     private NavigationManager NavigationManager { get; set; } = default!;
 
     // Fields
     private List<Pattern> patterns = new();
+    private Dictionary<int, string?> patternThumbnails = new();
     private string? toastMessage;
 
     // Lifecycle methods
-    protected override async Task OnInitializedAsync() =>
+    protected override async Task OnInitializedAsync()
+    {
         patterns = await PatternService.GetAllAsync();
+        await LoadThumbnails();
+    }
+
+    private async Task LoadThumbnails()
+    {
+        patternThumbnails.Clear();
+        foreach (var pattern in patterns)
+        {
+            var images = await PatternImageService.GetImagesForPatternAsync(pattern.Id);
+            patternThumbnails[pattern.Id] = images.FirstOrDefault()?.FilePath;
+        }
+    }
 
     // Event handlers
     private async Task HandleDelete(int id)
     {
         await PatternService.DeleteAsync(id);
         patterns = await PatternService.GetAllAsync();
+        await LoadThumbnails();
     }
 
     private void GoToEdit(int id)
     {
         NavigationManager.NavigateTo($"/editpatterns/{id}");
+    }
+
+    private void GoToDetails(int id)
+    {
+        NavigationManager.NavigateTo($"/detailpatterns/{id}");
     }
 
     private async Task HandleAddToCart(int id)
@@ -51,7 +74,7 @@ public partial class Patterns
     {
         toastMessage = null;
     }
-    
+
     private void GoToCart()
     {
         NavigationManager.NavigateTo("/cart");
