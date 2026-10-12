@@ -132,3 +132,61 @@ button {
     overflow: hidden;
     border-radius: 12px; 
 }
+
+.cart-item-card {
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cart-toggle-wrap {
+    display: flex;
+    justify-content: center;
+}
+
+.cart-toggle {
+    display: inline-flex;
+    border: 1px solid var(--mud-palette-lines-default);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.cart-toggle-btn {
+    border-radius: 0;
+    box-shadow: none;
+    min-width: 220px;
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+.cart-stepper {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--mud-palette-lines-default);
+    border-radius: 10px;
+    padding: 2px;
+}
+
+.cart-stepper .mud-icon-button-root {
+    padding: 4px;
+    width: 28px;
+    height: 28px;
+}
+
+.cart-thumbnail {
+    width: 110px;
+    height: 110px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    background-color: var(--mud-palette-tertiary);
+}
+.cart-count-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    padding: 12px;
+}
+
+

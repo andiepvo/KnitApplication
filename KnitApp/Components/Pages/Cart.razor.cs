@@ -12,14 +12,31 @@ public partial class Cart
     [Inject]
     private IShoppingListService ShoppingListService { get; set; } = default!;
     
+    [Inject]
+    private IPatternImageService PatternImageService { get; set; } = default!;
+    
     private List<CartItem> cartItems = new();
+    private Dictionary<int, string?> patternThumbnails = new();
     private string activeTab = "recipe";
     
     protected override async Task OnInitializedAsync() =>
         await LoadCart();
 
-    private async Task LoadCart() =>
+    private async Task LoadCart()
+    {
         cartItems = await CartService.GetCartAsync();
+        await LoadThumbnails();
+    }
+    
+    private async Task LoadThumbnails()
+    {
+        patternThumbnails.Clear();
+        foreach (var patternId in cartItems.Select(c => c.Pattern.Id).Distinct())
+        {
+            var images = await PatternImageService.GetImagesForPatternAsync(patternId);
+            patternThumbnails[patternId] = images.FirstOrDefault()?.FilePath;
+        }
+    }
     
     private void ShowRecipeTab() => activeTab = "recipe";
 
@@ -64,5 +81,30 @@ public partial class Cart
             item.Quantity)).ToList();
 
         return ShoppingListService.GenerateShoppingList(expandedPatterns);
+    }
+    
+    private async Task HandleRemoveAggregatedMaterial(string yarnName)
+    {
+        foreach (var item in cartItems)
+        {
+            var matches = item.Pattern.Materials
+                .Where(m => string.Equals(m.MaterialName, yarnName, StringComparison.OrdinalIgnoreCase))
+                .Where(m => !item.ExcludedMaterials.Any(e => e.MaterialId == m.Id));
+
+            foreach (var material in matches)
+            {
+                await CartService.RemoveMaterialFromCartItemAsync(item.Id, material.Id);
+            }
+        }
+        await LoadCart();
+    }
+    
+    private static string Pluralize(string unit, int quantity)
+    {
+        if (quantity == 1 && unit.EndsWith("s", StringComparison.OrdinalIgnoreCase) && unit.Length > 1)
+        {
+            return unit[..^1];
+        }
+        return unit;
     }
 }

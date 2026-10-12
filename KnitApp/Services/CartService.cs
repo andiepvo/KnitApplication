@@ -45,6 +45,8 @@ public class CartService : ICartService
         await _context.CartItems
             .Include(c => c.Pattern)
             .ThenInclude(p => p.Materials)
+            .Include(c => c.Pattern)
+            .ThenInclude(p => p.Equipment)
             .Include(c => c.ExcludedMaterials)
             .ToListAsync();
 

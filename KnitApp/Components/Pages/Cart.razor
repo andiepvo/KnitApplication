@@ -1,48 +1,133 @@
 @page "/cart"
 @rendermode InteractiveServer
 
-<h1>Shopping Cart</h1>
-<p>Total items: @cartItems.Sum(c => c.Quantity)</p>
+<MudText Typo="Typo.h4" Class="mb-4">Shopping cart</MudText>
 
-<div class="cart-tabs">
-    <button @onclick="ShowRecipeTab" class="@(activeTab == "recipe" ? "active" : "")">Sorted by recipe</button>
-    <button @onclick="ShowIngredientsTab" class="@(activeTab == "ingredients" ? "active" : "")">Sorted by ingredients</button>
+<div class="cart-count-bar mb-4">
+    <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Size="Size.Small" Class="mr-2" />
+    <MudText Typo="Typo.body1"><b>@cartItems.Sum(c => c.Quantity)</b> items</MudText>
+</div>
+
+<div class="cart-toggle-wrap mb-4">
+ 
+</div>
+<MudText Typo="Typo.body2" Class="mb-2">Organize by</MudText>
+<div class="cart-toggle-wrap mb-4">
+    <div class="cart-toggle">
+        <MudButton Variant="@(activeTab == "recipe" ? Variant.Filled : Variant.Text)"
+                   Color="@(activeTab == "recipe" ? Color.Primary : Color.Default)"
+                   Class="cart-toggle-btn"
+                   OnClick="ShowRecipeTab">
+            Pattern
+        </MudButton>
+        <MudButton Variant="@(activeTab == "ingredients" ? Variant.Filled : Variant.Text)"
+                   Color="@(activeTab == "ingredients" ? Color.Primary : Color.Default)"
+                   Class="cart-toggle-btn"
+                   OnClick="ShowIngredientsTab">
+            Material
+        </MudButton>
+    </div>
 </div>
 
 @if (activeTab == "recipe")
 {
     @foreach (var item in cartItems)
     {
-        <div class="cart-pattern-section">
-            <div class="cart-pattern-header">
-                <h3>@item.Pattern.Name</h3>
-                <button @onclick="() => HandleRemovePattern(item.Id)">Remove</button>
-            </div>
+        <MudCard Class="cart-item-card mb-4">
+            <MudCardContent Class="pa-4">
+                <div class="d-flex align-start mb-2" style="gap: 12px;">
+                    @if (patternThumbnails.TryGetValue(item.Pattern.Id, out var thumbnail) && !string.IsNullOrEmpty(thumbnail))
+                    {
+                        <MudImage Src="@thumbnail" Class="cart-thumbnail" ObjectFit="ObjectFit.Cover" />
+                    }
+                    else
+                    {
+                        <div class="cart-thumbnail"></div>
+                    }
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-space-between align-center">
+                            <MudText Typo="Typo.h6">@item.Pattern.Name</MudText>
+                            <MudButton Variant="Variant.Text"
+                                       Color="Color.Error"
+                                       StartIcon="@Icons.Material.Filled.Delete"
+                                       Size="Size.Small"
+                                       OnClick="() => HandleRemovePattern(item.Id)">
+                                Remove
+                            </MudButton>
+                        </div>
+                        <div class="cart-stepper mt-2">
+                            <MudIconButton Icon="@Icons.Material.Filled.Remove" Size="Size.Small" OnClick="() => DecreaseQuantity(item)" />
+                            <MudText Class="mx-3"><b>@item.Quantity</b></MudText>
+                            <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="() => IncreaseQuantity(item)" />
+                        </div>
+                    </div>
+                </div>
 
-            <div class="cart-quantity-stepper">
-                <button @onclick="() => DecreaseQuantity(item)">-</button>
-                <span>@item.Quantity</span>
-                <button @onclick="() => IncreaseQuantity(item)">+</button>
-            </div>
+                <MudDivider Class="mb-2" />
 
-            <div class="cart-materials">
                 @foreach (var material in item.Pattern.Materials.Where(m => !item.ExcludedMaterials.Any(e => e.MaterialId == m.Id)))
                 {
-                    <div class="cart-material-row">
-                        <span>@material.MaterialName (@(material.Quantity * item.Quantity) @material.Unit)</span>
-                        <button @onclick="() => HandleRemoveMaterial(item.Id, material.Id)">X</button>
+                    <div class="d-flex justify-space-between align-center py-1">
+                        <MudText Typo="Typo.body2">
+                            @material.MaterialName
+                            <MudText Typo="Typo.caption" Style="color: var(--mud-palette-text-secondary);" Class="d-inline">
+                                &nbsp;(@(material.Quantity * item.Quantity) @Pluralize(material.Unit, material.Quantity * item.Quantity))
+                            </MudText>
+                        </MudText>
+                        <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                       Size="Size.Small"
+                                       Color="Color.Error"
+                                       Title="I already have this"
+                                       OnClick="() => HandleRemoveMaterial(item.Id, material.Id)" />
                     </div>
+                
                 }
-            </div>
-        </div>
+                @if (item.Pattern.Equipment.Any())
+                {
+                    <MudDivider Class="my-2"/>
+                    <MudText Typo="Typo.caption" Style="color: var(--mud-palette-text-secondary);" Class="mb-1">Equipment</MudText>
+                    @foreach (var equipment in item.Pattern.Equipment)
+                    {
+                        <div class="py-1">
+                            <MudText Typo="Typo.body2">
+                                @equipment.EquipmentType
+                                @if (equipment.Size.HasValue)
+                                {
+                                    <text> — @equipment.Size.Value mm</text>
+                                }
+                                @if (equipment.Length.HasValue)
+                                {
+                                    <text>, @equipment.Length.Value cm</text>
+                                }
+                            </MudText>
+                        </div>
+                    }
+                }
+            </MudCardContent>
+        </MudCard>
     }
 }
 else
 {
-    <div class="cart-ingredients">
-        @foreach (var line in GetAggregatedList())
-        {
-            <div class="cart-ingredient-row">@line.YarnName: @line.TotalQuantity @line.Unit</div>
-        }
-    </div>
+    <MudCard Class="cart-item-card">
+        <MudCardContent Class="pa-4">
+            @foreach (var line in GetAggregatedList())
+            {
+                <div class="d-flex justify-space-between align-center py-2">
+                    <MudText Typo="Typo.body1">@line.YarnName</MudText>
+                    <div class="d-flex align-center" style="gap: 12px;">
+                        <MudText Typo="Typo.body2" Style="color: var(--mud-palette-text-secondary);">
+                            @line.TotalQuantity @line.Unit
+                        </MudText>
+                        <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                       Size="Size.Small"
+                                       Color="Color.Error"
+                                       Title="I already have this"
+                                       OnClick="() => HandleRemoveAggregatedMaterial(line.YarnName)" />
+                    </div>
+                </div>
+                <MudDivider />
+            }
+        </MudCardContent>
+    </MudCard>
 }
