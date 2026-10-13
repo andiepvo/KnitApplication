@@ -4,127 +4,177 @@
 @using KnitApp.Models
 @using KnitApp.Components.Shared
 
-<h1>Add patterns</h1>
-<p>This is where you can add patterns</p>
+<MudText Typo="Typo.h4" Class="mb-4">Add pattern</MudText>
 
-<EditForm Model="newPattern" OnValidSubmit="HandleSubmit" FormName="AddPatternForm">
-    <DataAnnotationsValidator />
-    
-    <label>
-        Pattern name *
-        <InputText @bind-Value="newPattern.Name" />
-    </label>
+<div class="pattern-form">
+    <EditForm Model="newPattern" OnValidSubmit="HandleSubmit" FormName="AddPatternForm">
+        <DataAnnotationsValidator />
 
-    <div>
+        <MudText Typo="Typo.h6" Class="mb-2">Pattern name *</MudText>
+        <MudTextField @bind-Value="newPattern.Name"
+                      For="@(() => newPattern.Name)"
+                      Required="true"
+                      Variant="Variant.Outlined"
+                      Class="form-input mb-4" />
+
+        <MudText Typo="Typo.h6" Class="mb-2">Craft type</MudText>
+        <MudSelect T="CraftType" @bind-Value="newPattern.CraftType"
+                   Variant="Variant.Outlined"
+                   Class="form-input mb-4">
+            @foreach (var type in Enum.GetValues<CraftType>())
+            {
+                <MudSelectItem T="CraftType" Value="@type">@type</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudText Typo="Typo.h6" Class="mb-2">Pattern type</MudText>
+        <MudSelect T="PatternType" @bind-Value="newPattern.PatternType"
+                   Variant="Variant.Outlined"
+                   Class="form-input">
+            @foreach (var type in Enum.GetValues<PatternType>())
+            {
+                <MudSelectItem T="PatternType" Value="@type">@type</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudText Typo="Typo.h6" Class="mb-3 mt-4">Materials</MudText>
+
         @foreach (var material in newPattern.Materials)
         {
-            <div @key="material" class="material-row">
-                <label>
-                    Yarn name *
+            <MudCard @key="material" Class="form-section-card mb-3">
+                <MudCardContent Class="pa-4">
+                    <MudText Typo="Typo.h6" Class="mb-2">Yarn name</MudText>
                     <YarnNameAutocomplete @bind-Value="material.MaterialName" Suggestions="yarnCatalog" />
-                </label>
 
-                <label>
-                    Quantity *
-                    <button type="button" @onclick="() => DecreaseQuantity(material)">−</button>
-                    <InputNumber @bind-Value="material.Quantity" />
-                    <button type="button" @onclick="() => IncreaseQuantity(material)">+</button>
-                </label>
+                    <MudText Typo="Typo.h6" Class="mb-2 mt-4">Quantity</MudText>
+                    <div class="cart-stepper">
+                        <MudIconButton Icon="@Icons.Material.Filled.Remove" Size="Size.Small" OnClick="() => DecreaseQuantity(material)" />
+                        <MudText Class="mx-3"><b>@material.Quantity</b></MudText>
+                        <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="() => IncreaseQuantity(material)" />
+                    </div>
 
-                <label>
-                    Unit *
-                    <InputSelect @bind-Value="material.Unit">
-                        <option value="">Select unit</option>
-                        <option value="Skeins">Skeins</option>
-                        <option value="Grams">Grams</option>
-                        <option value="Meters">Meters</option>
-                        <option value="Yards">Yards</option>
-                        <option value="Balls">Balls</option>
-                    </InputSelect>
-                </label>
+                    <MudText Typo="Typo.h6" Class="mb-2 mt-4">Unit</MudText>
+                    <MudSelect T="string" @bind-Value="material.Unit"
+                               Variant="Variant.Outlined"
+                               FullWidth="true"
+                               Class="form-input">
+                        @foreach (var unit in UnitOptions)
+                        {
+                            <MudSelectItem T="string" Value="@unit">@unit</MudSelectItem>
+                        }
+                    </MudSelect>
 
-                <label>
-                    Color (optional)
-                    <InputText @bind-Value="material.ColorOfYarn" />
-                </label>
+                    <MudText Typo="Typo.h6" Class="mb-2 mt-4">Color</MudText>
+                    <MudTextField @bind-Value="material.ColorOfYarn"
+                                  HelperText="Optional — e.g. Heather, Oat"
+                                  Variant="Variant.Outlined"
+                                  Class="form-input" />
 
-                @if (newPattern.Materials.Count > 1)
-                {
-                    <button type="button" @onclick="() => RemoveMaterial(material)">Remove</button>
-                }
-
-            </div>
+                    @if (newPattern.Materials.Count > 1)
+                    {
+                        <MudButton Variant="Variant.Text"
+                                   Color="Color.Error"
+                                   StartIcon="@Icons.Material.Filled.Delete"
+                                   Size="Size.Small"
+                                   Class="mt-4"
+                                   OnClick="() => RemoveMaterial(material)">
+                            Remove yarn
+                        </MudButton>
+                    }
+                </MudCardContent>
+            </MudCard>
         }
-        @foreach (var equipment in newPattern.Equipment)
+
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="AddMaterial">
+            Add yarn
+        </MudButton>
+
+        <MudDivider Class="my-6" />
+
+        <FormSection Title="Equipment">
+            @foreach (var equipment in newPattern.Equipment)
+            {
+                <MudCard @key="equipment" Class="form-section-card mb-3">
+                    <MudCardContent Class="pa-4">
+                        <MudText Typo="Typo.h6" Class="mb-2">Equipment type</MudText>
+                        <MudTextField @bind-Value="equipment.EquipmentType"
+                                      HelperText="e.g. Circular needle, Crochet hook"
+                                      Variant="Variant.Outlined"
+                                      Class="form-input" />
+
+                        <MudText Typo="Typo.h6" Class="mb-2 mt-4">Size (mm)</MudText>
+                        <MudNumericField @bind-Value="equipment.Size"
+                                         Variant="Variant.Outlined"
+                                         Class="form-input" />
+
+                        <MudText Typo="Typo.h6" Class="mb-2 mt-4">Length (cm)</MudText>
+                        <MudNumericField @bind-Value="equipment.Length"
+                                         Variant="Variant.Outlined"
+                                         Class="form-input" />
+
+                        @if (newPattern.Equipment.Count > 1)
+                        {
+                            <MudButton Variant="Variant.Text"
+                                       Color="Color.Error"
+                                       StartIcon="@Icons.Material.Filled.Delete"
+                                       Size="Size.Small"
+                                       Class="mt-4"
+                                       OnClick="() => RemoveEquipment(equipment)">
+                                Remove equipment
+                            </MudButton>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            }
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       OnClick="AddEquipment">
+                Add equipment
+            </MudButton>
+        </FormSection>
+
+        <MudText Typo="Typo.h6" Class="mb-2">Description</MudText>
+        <MudTextField @bind-Value="newPattern.Description"
+                      Lines="3"
+                      Variant="Variant.Outlined"
+                      Class="form-input mb-4" />
+
+        <MudText Typo="Typo.h6" Class="mb-2">Instructions</MudText>
+        <MudTextField @bind-Value="newPattern.Instructions"
+                      Lines="15"
+                      Variant="Variant.Outlined"
+                      Class="form-input resizable-input" />
+        <MudDivider Class="my-6" />
+
+        <FormSection Title="Instructions PDF">
+            <MudText Typo="Typo.caption" Style="color: var(--mud-palette-text-secondary);" Class="mb-2">
+                Optional — upload a PDF with the full written pattern
+            </MudText>
+
+            <InputFile OnChange="HandlePdfUpload" accept=".pdf,application/pdf" />
+            <InputText @bind-Value="newPattern.InstructionsPdf" type="hidden" />
+        </FormSection>
+
+        @if (errorMessage is not null)
         {
-            <div @key="equipment" class="equipment-row">
-                <label>
-                    Equipment
-                    <InputText @bind-Value="equipment.EquipmentType" />
-                </label>
-
-                <label>
-                    Size (mm)
-                    <InputNumber @bind-Value="equipment.Size" />
-                </label>
-                <label>
-                    Length (cm)
-                    <InputNumber @bind-Value="equipment.Length" />
-                </label>
-                @if (newPattern.Equipment.Count > 1)
-                {
-                    <button type="button" @onclick="() => RemoveEquipment(equipment)">Remove</button>
-                }
-
-            </div>
+            <MudAlert Severity="Severity.Error" Class="mb-4">@errorMessage</MudAlert>
         }
-        <button type="button" @onclick="() => AddEquipment()">Add equipment</button>
-    </div>
 
-    <button type="button" @onclick="() => AddMaterial()">Add yarn</button>
+        <ValidationSummary />
 
-    <label>Craft type</label>
-    <InputSelect @bind-Value="newPattern.CraftType">
-        @foreach (var type in Enum.GetValues<CraftType>())
-        {
-            <option value="@type">@type</option>
-        }
-    </InputSelect>
-
-    <label>Pattern type</label>
-    <InputSelect @bind-Value="newPattern.PatternType">
-        @foreach (var type in Enum.GetValues<PatternType>())
-        {
-            <option value="@type">@type</option>
-        }
-    </InputSelect>
-
-    <label>
-        Description
-        <InputTextArea @bind-Value="newPattern.Description" rows="3" style="width: 100%;" />
-    </label>
-
-    <label>
-        Instructions
-        <InputTextArea @bind-Value="newPattern.Instructions" rows="10" style="width: 100%; resize: both;" />
-    </label>
-
-    <label>
-        Instructions PDF (optional)
-        <InputFile OnChange="HandlePdfUpload" accept=".pdf,application/pdf" />
-    </label>
-
-    <InputText @bind-Value="newPattern.InstructionsPdf" type="hidden" />
-
-    @if (errorMessage is not null)
-    {
-        <p style="color: red;">@errorMessage</p>
-    }
-    
-    <ValidationSummary />
-    
-    <div class="form-actions">
-        <button type="submit" disabled="@isUploadingPdf">Save</button>
-    </div>
-
-</EditForm>
+        <div class="form-actions">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       ButtonType="ButtonType.Submit"
+                       Disabled="@isUploadingPdf"
+                       Class="pattern-add-button">
+                Save pattern
+            </MudButton>
+        </div>
+    </EditForm>
+</div>

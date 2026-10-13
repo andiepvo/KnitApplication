@@ -24,7 +24,6 @@ public partial class DetailPattern
     public int Id { get; set; }
 
     private Pattern? pattern;
-    private string? heroImage;
     private string? toastMessage;
     
     private List<string> heroImages = new();

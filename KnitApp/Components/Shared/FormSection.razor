@@ -1,0 +1,8 @@
+<MudText Typo="Typo.h6" Class="mb-3">@Title</MudText>
+@ChildContent
+<MudDivider Class="my-6" />
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

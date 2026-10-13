@@ -36,6 +36,8 @@ public partial class EditPatterns
 
     private List<PatternImage> patternImages = new();
 
+    private static readonly string[] UnitOptions = { "Skeins", "Grams", "Meters", "Yards", "Balls" };
+
     // Parameters
     [Parameter]
     public int Id { get; set; }

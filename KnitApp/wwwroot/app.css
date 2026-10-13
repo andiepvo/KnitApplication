@@ -231,5 +231,72 @@ button {
     background-position: center;
 }
 
+.form-input {
+    background-color: #FFFFFF;
+    border-radius: 8px;
+}
+
+.yarn-autocomplete {
+    position: relative;
+}
+
+.form-section-card {
+    border-radius: 16px;
+}
+
+.yarn-autocomplete-input {
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #FFFFFF;
+    border: 1px solid var(--mud-palette-lines-default);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--mud-palette-text-primary);
+}
+
+.yarn-autocomplete-input:focus {
+    outline: none;
+    border-color: var(--mud-palette-primary);
+}
+
+.yarn-autocomplete-suggestions {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background-color: #FFFFFF;
+    border: 1px solid var(--mud-palette-lines-default);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 10;
+}
+
+.yarn-autocomplete-suggestion {
+    padding: 10px 14px;
+    cursor: pointer;
+}
+
+.yarn-autocomplete-suggestion:hover {
+    background-color: var(--mud-palette-background);
+}
+
+.pattern-form {
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 16px;
+}
+
+.mud-select {
+    width: 100% !important;
+}
 
 
+
+.resizable-input textarea {
+    resize: vertical !important;
+}

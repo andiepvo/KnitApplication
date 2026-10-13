@@ -20,21 +20,23 @@ else
                     }
                 </MudCarousel>
             }
-            else if (heroImages.Count == 1)
-            {
-                <MudCardMedia Image="@heroImages[0]" Height="360" />
-            }
             else
             {
-                <div class="detail-hero-placeholder">
-                    <MudText>No picture</MudText>
-                </div>
+                @if (heroImages.Count == 1)
+                {
+                    <div class="detail-hero-placeholder" style="background-image: url('@heroImages[0]'); background-size: cover; background-position: center;"></div>
+                }
+                else
+                {
+                    <div class="detail-hero-placeholder">
+                        <MudText>No picture</MudText>
+                    </div>
+                }
             }
             <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
                            Class="detail-back-button"
                            OnClick="GoBack" />
         </div>
-    
 
         <MudCardContent Class="pa-4">
             <div class="d-flex justify-space-between align-center mb-2">
@@ -74,7 +76,7 @@ else
                         @material.MaterialName
                         @if (!string.IsNullOrEmpty(material.ColorOfYarn))
                         {
-                            <text> — @material.ColorOfYarn</text>
+                            @: — @material.ColorOfYarn
                         }
                     </MudText>
                     <MudText Typo="Typo.body2" Style="color: var(--mud-palette-text-secondary);">
@@ -93,11 +95,11 @@ else
                         @equipment.EquipmentType
                         @if (equipment.Size.HasValue)
                         {
-                            <text> — @equipment.Size.Value mm</text>
+                            @: — @equipment.Size.Value mm
                         }
                         @if (equipment.Length.HasValue)
                         {
-                            <text>, @equipment.Length.Value cm</text>
+                            @:, @equipment.Length.Value cm
                         }
                     </MudText>
                 }

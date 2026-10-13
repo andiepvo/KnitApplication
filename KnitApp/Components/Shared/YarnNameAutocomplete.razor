@@ -1,14 +1,14 @@
 @using KnitApp.Models
 
-<div>
-    <input value="@Value" @oninput="OnInput" />
+<div class="yarn-autocomplete">
+    <input class="yarn-autocomplete-input" value="@Value" @oninput="OnInput" />
 
     @if (showSuggestions && FilteredSuggestions.Any())
     {
-        <div>
+        <div class="yarn-autocomplete-suggestions">
             @foreach (var suggestion in FilteredSuggestions)
             {
-                <div @key="suggestion.Id" @onclick="() => SelectSuggestion(suggestion)">
+                <div @key="suggestion.Id" class="yarn-autocomplete-suggestion" @onclick="() => SelectSuggestion(suggestion)">
                     @suggestion.Name (@suggestion.Brand)
                 </div>
             }

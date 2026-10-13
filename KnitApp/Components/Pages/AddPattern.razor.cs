@@ -29,6 +29,8 @@ public partial class AddPattern
     private List<YarnCatalog> yarnCatalog = new();
 
     private bool isUploadingPdf;
+    
+    private static readonly string[] UnitOptions = { "Skeins", "Grams", "Meters", "Yards", "Balls" };
 
     // Lifecycle methods
     protected override async Task OnInitializedAsync()
