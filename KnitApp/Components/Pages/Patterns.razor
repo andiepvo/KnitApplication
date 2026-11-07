@@ -34,7 +34,8 @@
                         <MudChip T="string" Size="Size.Small" Color="Color.Tertiary">@pattern.CraftType</MudChip>
                         <div>
                             <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick="() => GoToEdit(pattern.Id)" title="Edit" />
-                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => HandleDelete(pattern.Id)" title="Delete" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error"
+                                           OnClick="() => ConfirmDelete(pattern.Id)" title="Delete" />
                         </div>
                     </div>
 
@@ -58,3 +59,13 @@
         </MudItem>
     }
 </MudGrid>
+
+<MudMessageBox @ref="_deleteBox" Title="Delete pattern" CancelText="Cancel">
+    <MessageContent>
+        Are you sure you want to delete <b>@_patternToDelete</b>? This can't be undone
+    </MessageContent>
+    <YesButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error"
+                   StartIcon="@Icons.Material.Filled.DeleteForever">Delete</MudButton>
+    </YesButton>
+</MudMessageBox>

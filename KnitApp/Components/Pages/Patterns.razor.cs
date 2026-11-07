@@ -1,3 +1,4 @@
+using MudBlazor;
 using Microsoft.AspNetCore.Components;
 using KnitApp.Services;
 using KnitApp.Models;
@@ -78,5 +79,20 @@ public partial class Patterns
     private void GoToCart()
     {
         NavigationManager.NavigateTo("/cart");
+    }
+    
+    private MudMessageBox _deleteBox = default!;
+
+    private string _patternToDelete = "";
+
+    private async Task ConfirmDelete(int id)
+    {
+        _patternToDelete = patterns.First(p => p.Id == id).Name;
+
+        bool? result = await _deleteBox.ShowAsync();
+        if (result == true)
+        {
+            await HandleDelete(id);
+        }
     }
 }
