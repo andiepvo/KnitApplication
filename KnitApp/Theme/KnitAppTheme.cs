@@ -17,7 +17,10 @@ public static class KnitAppTheme
             Background = "#F5E3E0",
             Surface = "#FFFFFF",
             TextPrimary = "#3A3238",
-            TextSecondary = "#6E4555"
-        }
+            TextSecondary = "#6E4555",
+            DrawerBackground = "#6E4555",
+            DrawerText = "#FFFFFF",
+            DrawerIcon = "#FFFFFF"
+       }
     };
 }
